@@ -1,0 +1,4230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Q1 · Reaction Rumble — Host · ICLP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&family=Montserrat:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
+
+    <!-- ═══════════════════════════════════════════════════════════
+     FIREBASE SETUP
+     1. Go to https://console.firebase.google.com
+     2. Create a new project (or use an existing one)
+     3. Add a Web App → copy the firebaseConfig object below
+     4. Go to Realtime Database → Create Database (test mode is fine for classroom use)
+     5. Replace the placeholder values below with your actual config
+     ═══════════════════════════════════════════════════════════ -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --bg: #070c18;
+            --bg-card: #0d1526;
+            --bg-card-2: #111d33;
+            --text: #dce8f0;
+            --text-muted: #7a9ab5;
+            --border: rgba(255, 255, 255, 0.08);
+            --q1: #00d4ff;
+            --q2: #ffc94d;
+            --q3: #a78bfa;
+            --q4: #f87171;
+            --accent: #00d4ff;
+            --accent-dim: rgba(0, 212, 255, 0.1);
+            --accent-glow: rgba(0, 212, 255, 0.35);
+            --green: #4ade80;
+            --red: #f87171;
+            --font-h: 'Rubik', sans-serif;
+            --font-b: 'Montserrat', sans-serif;
+            --r: 12px;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-b);
+            font-weight: 400
+        }
+
+        #bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.25
+        }
+
+        /* ── SCREENS ── */
+        .screen {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem
+        }
+
+        .screen[hidden] {
+            display: none
+        }
+
+        /* ── SHARED ── */
+        .eyebrow {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.5rem
+        }
+
+        .btn-primary {
+            padding: 0.85rem 2.5rem;
+            border-radius: 8px;
+            background: var(--accent);
+            color: var(--bg);
+            font-family: var(--font-h);
+            font-weight: 800;
+            font-size: 0.9rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 0 28px var(--accent-glow);
+            transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            opacity: 0.88;
+            transform: translateY(-2px)
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            box-shadow: none
+        }
+
+        .btn-ghost {
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            background: transparent;
+            border: 1.5px solid var(--accent);
+            color: var(--accent);
+            font-family: var(--font-h);
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .btn-ghost:hover {
+            background: var(--accent);
+            color: var(--bg)
+        }
+
+        /* ─────────────────────── CHAMBER LOBBY ─────────────────────── */
+        :root {
+            --chamber-green: #39e75f;
+            --chamber-green-dim: rgba(57, 231, 95, 0.12);
+            --chamber-green-glow: rgba(57, 231, 95, 0.35);
+            --condemned: #f87171;
+        }
+
+        #s-lobby {
+            background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(57, 231, 95, 0.04), transparent 60%)
+        }
+
+        #s-lobby .lobby-inner {
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem
+        }
+
+        /* ── header ── */
+        .chamber-eyebrow {
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            color: var(--chamber-green);
+            opacity: 0.75;
+        }
+
+        .chamber-title {
+            font-family: var(--font-h);
+            font-size: clamp(2rem, 5.5vw, 4rem);
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: -0.01em;
+            color: #fff;
+            text-align: center;
+        }
+
+        .chamber-title span {
+            -webkit-text-stroke: 2px var(--chamber-green);
+            color: transparent;
+        }
+
+        .chamber-divider {
+            width: 100%;
+            max-width: 420px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--chamber-green), transparent);
+            opacity: 0.3;
+        }
+
+        .chamber-sub {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 300;
+            letter-spacing: 0.08em;
+            text-align: center;
+        }
+
+        /* ── code display ── */
+        .chamber-code-wrap {
+            background: var(--bg-card);
+            border: 1px solid rgba(57, 231, 95, 0.3);
+            border-radius: var(--r);
+            padding: 1.5rem 2.5rem;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(57, 231, 95, 0.08), inset 0 0 30px rgba(57, 231, 95, 0.03);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chamber-code-wrap::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--chamber-green), transparent);
+        }
+
+        .chamber-code-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--chamber-green);
+            opacity: 0.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .chamber-code {
+            font-family: var(--font-h);
+            font-size: clamp(3rem, 9vw, 6rem);
+            font-weight: 900;
+            color: var(--chamber-green);
+            letter-spacing: 0.4em;
+            line-height: 1;
+            text-shadow: 0 0 30px var(--chamber-green-glow);
+        }
+
+        .chamber-code-hint {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.6rem;
+            letter-spacing: 0.04em;
+        }
+
+        .chamber-code-hint strong {
+            color: var(--text)
+        }
+
+        /* ── warning ticker ── */
+        .chamber-ticker {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.65rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--condemned);
+            opacity: 0.7;
+        }
+
+        .ticker-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--condemned);
+            animation: tickerPulse 1.2s ease-in-out infinite;
+        }
+
+        @keyframes tickerPulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.6)
+            }
+
+            50% {
+                opacity: 0.4;
+                box-shadow: 0 0 0 5px transparent
+            }
+        }
+
+        /* ── cell block ── */
+        .cell-block-wrap {
+            width: 100%;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem
+        }
+
+        .cell-block {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+        }
+
+        .cell-block-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 2rem;
+            opacity: 0.4;
+        }
+
+        .empty-tubes {
+            display: flex;
+            gap: 0.5rem
+        }
+
+        .empty-tube {
+            width: 36px;
+            height: 60px;
+            border: 1px solid rgba(57, 231, 95, 0.25);
+            border-radius: 4px 4px 10px 10px;
+            background: rgba(57, 231, 95, 0.03);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .empty-tube::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30%;
+            background: rgba(57, 231, 95, 0.06);
+            animation: tubeBubble 3s ease-in-out infinite;
+        }
+
+        @keyframes tubeBubble {
+
+            0%,
+            100% {
+                height: 20%
+            }
+
+            50% {
+                height: 35%
+            }
+        }
+
+        .empty-label {
+            font-size: 0.7rem;
+            color: var(--chamber-green);
+            letter-spacing: 0.14em;
+            text-transform: uppercase
+        }
+
+        /* ── amino pod ── */
+        .amino-pod {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 110px;
+            animation: podIn 0.35s cubic-bezier(.34, 1.56, .64, 1) both;
+            position: relative;
+        }
+
+        @keyframes podIn {
+            from {
+                opacity: 0;
+                transform: translateY(16px) scale(0.88)
+            }
+
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .pod-cell-tag {
+            font-family: var(--font-h);
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            color: var(--condemned);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pod-cell-tag::before,
+        .pod-cell-tag::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(248, 113, 113, 0.25)
+        }
+
+        .pod-glass {
+            width: 90px;
+            height: 110px;
+            border-radius: 8px 8px 20px 20px;
+            border: 1.5px solid var(--pod-color, rgba(57, 231, 95, 0.35));
+            background: linear-gradient(180deg, var(--pod-dim, rgba(57, 231, 95, 0.05)) 0%, var(--bg-card) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 18px var(--pod-glow, rgba(57, 231, 95, 0.1)), inset 0 0 12px rgba(0, 0, 0, 0.3);
+            cursor: default;
+        }
+
+        .pod-glass::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--pod-color, rgba(57, 231, 95, 0.35));
+            opacity: 0.7;
+        }
+
+        /* liquid at bottom */
+        .pod-glass::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 22px;
+            background: linear-gradient(0deg, var(--pod-dim, rgba(57, 231, 95, 0.1)), transparent);
+            animation: liquidSlosh 4s ease-in-out infinite;
+        }
+
+        @keyframes liquidSlosh {
+
+            0%,
+            100% {
+                height: 18px
+            }
+
+            50% {
+                height: 26px
+            }
+        }
+
+        .pod-avatar {
+            position: relative;
+            z-index: 1;
+            animation: podFloat 4s ease-in-out infinite;
+        }
+
+        /* subtle idle float — each pod offset by idx */
+        @keyframes podFloat {
+
+            0%,
+            100% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(-4px)
+            }
+        }
+
+        /* "condemned" tag strip on glass */
+        .pod-status-strip {
+            position: absolute;
+            top: 6px;
+            right: 4px;
+            font-size: 0.44rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--condemned);
+            opacity: 0.6;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+        }
+
+        .pod-footer {
+            width: 90px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--pod-color, rgba(57, 231, 95, 0.2));
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            padding: 4px 6px;
+            text-align: center;
+        }
+
+        .pod-acid-code {
+            font-family: var(--font-h);
+            font-size: 0.6rem;
+            font-weight: 800;
+            color: var(--pod-color, var(--chamber-green));
+            letter-spacing: 0.1em;
+        }
+
+        .pod-player-name {
+            font-family: var(--font-b);
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 78px;
+            margin: 0 auto;
+        }
+
+        /* ── death animation ── */
+        @keyframes acidExplode {
+            0% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+                filter: brightness(1)
+            }
+
+            25% {
+                transform: scale(1.6) rotate(12deg);
+                opacity: 1;
+                filter: brightness(3)
+            }
+
+            55% {
+                transform: scale(0.7) rotate(-18deg);
+                opacity: 0.5;
+                filter: brightness(0.5)
+            }
+
+            100% {
+                transform: scale(0) rotate(30deg);
+                opacity: 0
+            }
+        }
+
+        @keyframes bondScatter {
+            0% {
+                opacity: 1;
+                transform: rotate(var(--angle)) translateY(0) scaleY(0.3)
+            }
+
+            30% {
+                opacity: 1;
+                transform: rotate(var(--angle)) translateY(var(--dist)) scaleY(1)
+            }
+
+            100% {
+                opacity: 0;
+                transform: rotate(var(--angle)) translateY(calc(var(--dist)*1.6)) scaleY(0.4)
+            }
+        }
+
+        .amino-pod.dying .pod-avatar {
+            animation: acidExplode 0.7s cubic-bezier(.36, .07, .19, .97) forwards !important
+        }
+
+        .bond-shard {
+            position: absolute;
+            width: 2px;
+            height: 14px;
+            border-radius: 1px;
+            background: var(--pod-color, var(--chamber-green));
+            transform-origin: bottom center;
+            pointer-events: none;
+            z-index: 10;
+            animation: bondScatter 0.85s ease-out forwards;
+        }
+
+        .amino-pod.dead .pod-glass {
+            border-color: rgba(248, 113, 113, 0.2);
+            background: rgba(248, 113, 113, 0.03);
+            box-shadow: none;
+        }
+
+        .amino-pod.dead .pod-glass::before {
+            background: rgba(248, 113, 113, 0.3)
+        }
+
+        .amino-pod.dead .pod-glass::after {
+            display: none
+        }
+
+        .amino-pod.dead .pod-avatar {
+            opacity: 0
+        }
+
+        .amino-pod.dead .pod-cell-tag {
+            color: rgba(248, 113, 113, 0.4)
+        }
+
+        .amino-pod.dead .pod-footer {
+            border-color: rgba(248, 113, 113, 0.15)
+        }
+
+        /* ── ghost pod (dead but still playing) ── */
+        .amino-pod.ghost {
+            opacity: 0.35;
+            filter: saturate(0.3);
+        }
+
+        .amino-pod.ghost .pod-glass {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(0, 0, 0, 0.3) 100%);
+            box-shadow: none;
+        }
+
+        .amino-pod.ghost .pod-glass::before {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .amino-pod.ghost .pod-avatar {
+            opacity: 0.4;
+            filter: grayscale(0.8);
+        }
+
+        .amino-pod.ghost .pod-footer {
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .amino-pod.ghost .pod-status-strip {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* ── question screen pods ── */
+        .question-pods {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.5rem;
+            z-index: 2;
+            padding: 1rem 0;
+            pointer-events: none;
+        }
+
+        .question-pods.pods-left {
+            left: 0.5rem;
+        }
+
+        .question-pods.pods-right {
+            right: 0.5rem;
+        }
+
+        .question-pods .amino-pod {
+            transform: scale(0.6);
+            transform-origin: center;
+            transition: all 0.5s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        /* idle float on question screen */
+        @keyframes podIdleFloat {
+
+            0%,
+            100% {
+                transform: scale(0.6) translateY(0);
+            }
+
+            50% {
+                transform: scale(0.6) translateY(-6px);
+            }
+        }
+
+        .question-pods .amino-pod {
+            animation: podIdleFloat 4s ease-in-out infinite;
+        }
+
+        /* Pod answering state (grey/muted) */
+        .amino-pod.pod-answering .pod-glass {
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            background: linear-gradient(180deg, rgba(100, 100, 100, 0.05) 0%, var(--bg-card) 100%) !important;
+            box-shadow: none !important;
+        }
+
+        .amino-pod.pod-answering .pod-glass::before {
+            background: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .amino-pod.pod-answering .pod-glass::after {
+            background: linear-gradient(0deg, rgba(100, 100, 100, 0.06), transparent) !important;
+        }
+
+        .amino-pod.pod-answering .pod-avatar {
+            filter: grayscale(1) brightness(0.5);
+            opacity: 0.4;
+        }
+
+        .amino-pod.pod-answering .pod-footer {
+            border-color: rgba(255, 255, 255, 0.06) !important;
+        }
+
+        .amino-pod.pod-answering .pod-acid-code,
+        .amino-pod.pod-answering .pod-player-name {
+            color: rgba(255, 255, 255, 0.25) !important;
+        }
+
+        /* Pod submitted state (player's color shows) */
+        .amino-pod.pod-submitted .pod-avatar {
+            filter: none;
+            opacity: 1;
+        }
+
+        .amino-pod.pod-submitted .pod-glass {
+            box-shadow: 0 0 20px var(--pod-glow, rgba(57, 231, 95, 0.15));
+        }
+
+        /* Pod correct state (green) */
+        .amino-pod.pod-correct .pod-glass {
+            border-color: var(--scp-g) !important;
+            box-shadow: 0 0 25px rgba(57, 231, 95, 0.3) !important;
+        }
+
+        .amino-pod.pod-correct .pod-glass::before {
+            background: var(--scp-g) !important;
+        }
+
+        .amino-pod.pod-correct .pod-acid-code {
+            color: var(--scp-g) !important;
+        }
+
+        /* Pod wrong state (red) */
+        .amino-pod.pod-wrong .pod-glass {
+            border-color: var(--scp-r) !important;
+            box-shadow: 0 0 25px rgba(255, 34, 34, 0.3) !important;
+        }
+
+        .amino-pod.pod-wrong .pod-glass::before {
+            background: var(--scp-r) !important;
+        }
+
+        .amino-pod.pod-wrong .pod-acid-code {
+            color: var(--scp-r) !important;
+        }
+
+        /* Correct pods slide off */
+        @keyframes podSlideOff {
+            0% {
+                transform: scale(0.6) translateX(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(0.6) translateX(-120vw);
+                opacity: 0;
+            }
+        }
+
+        .amino-pod.pod-exit {
+            animation: podSlideOff 0.8s cubic-bezier(.55, .06, .68, .19) forwards !important;
+        }
+
+        /* Wrong pods center */
+        @keyframes podCenterUp {
+            0% {
+                transform: scale(0.6);
+            }
+
+            100% {
+                transform: scale(0.85) translateY(0);
+            }
+        }
+
+        .amino-pod.pod-center {
+            animation: podCenterUp 0.6s cubic-bezier(.34, 1.56, .64, 1) forwards !important;
+        }
+
+        /* Centered wrong pods container */
+        .wrong-pods-center {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1rem;
+        }
+
+        /* ── start button ── */
+        .btn-condemn {
+            background: var(--bg-card);
+            border: 1.5px solid var(--chamber-green);
+            color: var(--chamber-green);
+            font-family: var(--font-h);
+            font-weight: 800;
+            font-size: 0.88rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            box-shadow: 0 0 28px rgba(57, 231, 95, 0.12);
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
+        }
+
+        .btn-condemn:hover:not(:disabled) {
+            background: var(--chamber-green);
+            color: #050e0a;
+            box-shadow: 0 0 40px rgba(57, 231, 95, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-condemn:disabled {
+            border-color: rgba(57, 231, 95, 0.2);
+            color: rgba(57, 231, 95, 0.25);
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.5
+            }
+
+            50% {
+                opacity: 1
+            }
+        }
+
+        /* ══════════════════════════════════════════════════
+   SCP-CORRUPTED QUIZ SCREENS
+   ══════════════════════════════════════════════════ */
+
+        /* ── scanlines overlay ── */
+        .screen-scp::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px,
+                    rgba(0, 0, 0, 0.06) 2px, rgba(0, 0, 0, 0.06) 4px);
+        }
+
+        /* ── glitch keyframes ── */
+        @keyframes glitch {
+
+            0%,
+            100% {
+                clip-path: inset(0 0 100% 0);
+                transform: translate(0)
+            }
+
+            3% {
+                clip-path: inset(10% 0 80% 0);
+                transform: translate(-3px, 1px)
+            }
+
+            6% {
+                clip-path: inset(45% 0 45% 0);
+                transform: translate(3px, -1px)
+            }
+
+            9% {
+                clip-path: inset(70% 0 20% 0);
+                transform: translate(-2px, 2px)
+            }
+
+            12% {
+                clip-path: inset(0 0 100% 0);
+                transform: translate(0)
+            }
+        }
+
+        @keyframes glitchB {
+
+            0%,
+            100% {
+                clip-path: inset(0 0 100% 0);
+                transform: translate(0);
+                color: var(--scp-g)
+            }
+
+            4% {
+                clip-path: inset(30% 0 60% 0);
+                transform: translate(4px);
+                color: var(--scp-r)
+            }
+
+            8% {
+                clip-path: inset(60% 0 30% 0);
+                transform: translate(-4px);
+                color: var(--scp-g)
+            }
+
+            12% {
+                clip-path: inset(0 0 100% 0)
+            }
+        }
+
+        @keyframes flicker {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            7% {
+                opacity: 0.85
+            }
+
+            14% {
+                opacity: 1
+            }
+
+            21% {
+                opacity: 0.7
+            }
+
+            28% {
+                opacity: 1
+            }
+
+            42% {
+                opacity: 0.9
+            }
+
+            49% {
+                opacity: 1
+            }
+        }
+
+        @keyframes staticNoise {
+            0% {
+                background-position: 0 0
+            }
+
+            25% {
+                background-position: 3px -2px
+            }
+
+            50% {
+                background-position: -2px 4px
+            }
+
+            75% {
+                background-position: 4px 1px
+            }
+
+            100% {
+                background-position: 0 0
+            }
+        }
+
+        @keyframes warningBlink {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.25
+            }
+        }
+
+        @keyframes redacted {
+
+            0%,
+            100% {
+                letter-spacing: 0.04em;
+                filter: none
+            }
+
+            50% {
+                letter-spacing: 0.08em;
+                filter: brightness(1.4) blur(0.3px)
+            }
+        }
+
+        @keyframes borderCorrupt {
+
+            0%,
+            100% {
+                border-color: var(--scp-g-dim)
+            }
+
+            33% {
+                border-color: var(--scp-r);
+                border-width: 2px
+            }
+
+            66% {
+                border-color: var(--scp-g-dim);
+                border-width: 1px
+            }
+        }
+
+        :root {
+            --scp-bg: #020508;
+            --scp-card: #060d14;
+            --scp-g: #39e75f;
+            --scp-g-dim: rgba(57, 231, 95, 0.22);
+            --scp-g-glow: rgba(57, 231, 95, 0.35);
+            --scp-r: #ff2222;
+            --scp-r-dim: rgba(255, 34, 34, 0.15);
+            --scp-amber: #ffaa00;
+            --scp-text: #b8d4b8;
+            --scp-muted: #3d5c3d;
+            --scp-mono: 'Courier New', monospace;
+        }
+
+        /* ─────────────────────── QUESTION ─────────────────────── */
+        #s-question {
+            padding: 0;
+            background: var(--scp-bg)
+        }
+
+        #s-question::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 60% 40% at 50% 0%, rgba(57, 231, 95, 0.04), transparent 60%),
+                radial-gradient(ellipse 30% 20% at 80% 80%, rgba(255, 34, 34, 0.04), transparent 50%);
+            animation: staticNoise 0.18s steps(1) infinite;
+        }
+
+        .q-screen-inner {
+            width: 100%;
+            height: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-rows: 56px 1fr auto auto;
+            padding: 0.75rem 1.5rem 1rem;
+            gap: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* top bar */
+        .q-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--scp-g-dim);
+            padding-bottom: 0.5rem;
+        }
+
+        .q-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem
+        }
+
+        .q-badge-num {
+            font-family: var(--scp-mono);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            padding: 0.22rem 0.65rem;
+            border: 1px solid var(--scp-g-dim);
+            border-radius: 3px;
+            color: var(--scp-g);
+            background: rgba(57, 231, 95, 0.05);
+            animation: borderCorrupt 8s ease-in-out infinite;
+        }
+
+        .q-room-tag {
+            font-family: var(--scp-mono);
+            font-size: 0.65rem;
+            color: var(--scp-muted);
+            letter-spacing: 0.2em;
+            opacity: 0.6;
+        }
+
+        .q-room-tag::before {
+            content: 'BLOCK//'
+        }
+
+        /* timer — corrupted ring */
+        .timer-wrap {
+            position: relative;
+            width: 72px;
+            height: 72px
+        }
+
+        .timer-ring {
+            width: 72px;
+            height: 72px;
+            transform: rotate(-90deg)
+        }
+
+        .timer-track {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.04);
+            stroke-width: 4
+        }
+
+        .timer-arc {
+            fill: none;
+            stroke: var(--scp-g);
+            stroke-width: 4;
+            stroke-linecap: square;
+            transition: stroke 0.5s
+        }
+
+        .timer-num {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--scp-mono);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--scp-g);
+            transition: color 0.5s;
+        }
+
+        .timer-num.urgent {
+            animation: warningBlink 0.4s ease-in-out infinite
+        }
+
+        .answer-tally {
+            font-family: var(--scp-mono);
+            font-size: 0.72rem;
+            color: var(--scp-muted);
+            letter-spacing: 0.1em;
+        }
+
+        .answer-tally span {
+            color: var(--scp-g)
+        }
+
+        /* ── case file display ── */
+        .case-file {
+            background: var(--scp-card);
+            border: 1px solid var(--scp-g-dim);
+            border-radius: 4px;
+            padding: 1rem 1.25rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .case-file::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: repeating-linear-gradient(90deg, var(--scp-g) 0, var(--scp-g) 6px, transparent 6px, transparent 12px);
+            opacity: 0.6;
+        }
+
+        .case-file-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .case-id {
+            font-family: var(--scp-mono);
+            font-size: 0.6rem;
+            color: var(--scp-r);
+            letter-spacing: 0.25em;
+            opacity: 0.7;
+        }
+
+        .case-class {
+            font-family: var(--scp-mono);
+            font-size: 0.58rem;
+            color: var(--scp-amber);
+            letter-spacing: 0.2em;
+            border: 1px solid rgba(255, 170, 0, 0.3);
+            padding: 0.1rem 0.4rem;
+            border-radius: 2px;
+        }
+
+        .case-label {
+            font-family: var(--scp-mono);
+            font-size: 0.62rem;
+            color: var(--scp-muted);
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-bottom: 0.2rem;
+        }
+
+        .eq-display {
+            font-family: var(--scp-mono);
+            font-size: clamp(1.1rem, 2.8vw, 2rem);
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-align: center;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px dashed rgba(57, 231, 95, 0.15);
+            border-radius: 3px;
+            animation: flicker 12s ease-in-out infinite;
+        }
+
+        .eq-q-label {
+            display: none
+        }
+
+        /* absorbed into case-file header */
+
+        /* ── choice grid ── */
+        .choices-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem
+        }
+
+        .choice-box {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            background: var(--scp-card);
+            border: 1px solid var(--cc, var(--scp-g-dim));
+            border-radius: 3px;
+            padding: 0.9rem 1.1rem;
+            transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .choice-box::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--cc, var(--scp-g));
+            opacity: 0.6;
+        }
+
+        .choice-lbl {
+            font-family: var(--scp-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--cc, var(--scp-g));
+            letter-spacing: 0.1em;
+            min-width: 1.5rem;
+        }
+
+        .choice-txt {
+            font-family: var(--scp-mono);
+            font-size: clamp(0.78rem, 1.4vw, 0.98rem);
+            font-weight: 500;
+            color: var(--scp-text);
+            letter-spacing: 0.04em;
+        }
+
+        .choice-box.revealed-correct {
+            background: rgba(57, 231, 95, 0.08);
+            border-color: var(--scp-g);
+            box-shadow: 0 0 20px rgba(57, 231, 95, 0.15);
+        }
+
+        .choice-box.revealed-wrong {
+            opacity: 0.25
+        }
+
+        /* ─────────────────────── REVEAL ─────────────────────── */
+        #s-reveal {
+            background: var(--scp-bg)
+        }
+
+        .reveal-inner {
+            max-width: 860px;
+            width: 100%;
+            text-align: center
+        }
+
+        .verdict-box {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            border: 2px solid var(--scp-g);
+            border-radius: 3px;
+            padding: 1rem 2.5rem;
+            margin-bottom: 1.5rem;
+            background: rgba(57, 231, 95, 0.06);
+            box-shadow: 0 0 40px rgba(57, 231, 95, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .verdict-box::before {
+            content: 'VERDICT CONFIRMED';
+            position: absolute;
+            top: 5px;
+            left: 8px;
+            font-family: var(--scp-mono);
+            font-size: 0.45rem;
+            color: var(--scp-g);
+            letter-spacing: 0.22em;
+            opacity: 0.45;
+        }
+
+        .verdict-label {
+            font-family: var(--scp-mono);
+            font-size: 0.55rem;
+            letter-spacing: 0.28em;
+            color: var(--scp-muted);
+            margin-bottom: 0.15rem
+        }
+
+        .correct-box {
+            font-family: var(--font-h);
+            font-size: clamp(1.4rem, 3vw, 2.2rem);
+            font-weight: 900;
+            color: var(--scp-g);
+            letter-spacing: 0.04em;
+        }
+
+        .hint-txt {
+            font-family: var(--scp-mono);
+            color: var(--scp-muted);
+            font-size: 0.82rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+            padding: 0.5rem 1rem;
+            border-left: 2px solid var(--scp-g-dim);
+            text-align: left;
+            max-width: 600px;
+            margin-inline: auto;
+        }
+
+        .player-results {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            justify-content: center;
+            margin-bottom: 1.75rem
+        }
+
+        .pr-card {
+            background: var(--scp-card);
+            border-radius: 3px;
+            padding: 0.85rem 1.1rem;
+            min-width: 130px;
+            text-align: center;
+            border: 1px solid var(--scp-g-dim);
+            border-top: 2px solid var(--scp-g-dim);
+            transition: border-color 0.3s;
+            animation: cardRevealIn 0.35s ease both;
+        }
+
+        .pr-card.correct {
+            border-color: var(--scp-g);
+            border-top-color: var(--scp-g)
+        }
+
+        .pr-card.wrong {
+            border-color: var(--scp-r-dim);
+            border-top-color: var(--scp-r)
+        }
+
+        .pr-card.eliminated {
+            opacity: 0.4;
+            filter: grayscale(0.8)
+        }
+
+        .pr-name {
+            font-family: var(--scp-mono);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--scp-text);
+            margin-bottom: 0.3rem
+        }
+
+        .pr-result {
+            font-size: 1.3rem;
+            margin-bottom: 0.3rem
+        }
+
+        .pr-delta {
+            font-family: var(--scp-mono);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.05em
+        }
+
+        .pr-card.correct .pr-delta {
+            color: var(--scp-g)
+        }
+
+        .pr-card.wrong .pr-delta {
+            color: var(--scp-r)
+        }
+
+        .pr-hearts {
+            font-size: 0.82rem;
+            margin-top: 0.3rem;
+            letter-spacing: 0.1em
+        }
+
+        .heart-alive {
+            color: #f87171
+        }
+
+        .heart-dead {
+            color: #2a3a4a
+        }
+
+        /* ─────────────────────── ELEVATOR INTERMISSION ─────────────────────── */
+        #s-leaderboard {
+            background: var(--scp-bg)
+        }
+
+        .elevator-wrap {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* shaft background */
+        .elevator-shaft {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(0deg,
+                    rgba(57, 231, 95, 0.015) 0px, rgba(57, 231, 95, 0.015) 1px,
+                    transparent 1px, transparent 48px);
+        }
+
+        .shaft-left,
+        .shaft-right {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 18px;
+            background: linear-gradient(180deg,
+                    transparent 0%, rgba(57, 231, 95, 0.08) 20%,
+                    rgba(57, 231, 95, 0.12) 50%, rgba(57, 231, 95, 0.08) 80%, transparent 100%);
+            border: 1px solid rgba(57, 231, 95, 0.12);
+        }
+
+        .shaft-left {
+            left: 50%;
+            margin-left: -320px
+        }
+
+        .shaft-right {
+            left: 50%;
+            margin-left: 300px
+        }
+
+        /* elevator car */
+        .elevator-car {
+            position: relative;
+            z-index: 2;
+            width: min(640px, 90vw);
+            background: rgba(4, 10, 18, 0.95);
+            border: 1.5px solid var(--scp-g-dim);
+            border-radius: 4px;
+            padding: 1.75rem;
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(57, 231, 95, 0.06);
+            animation: elevatorDescend 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes elevatorDescend {
+            from {
+                transform: translateY(-40px);
+                opacity: 0
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1
+            }
+        }
+
+        .elevator-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px dashed var(--scp-g-dim);
+        }
+
+        .elevator-floor {
+            font-family: var(--scp-mono);
+            font-size: 0.6rem;
+            color: var(--scp-r);
+            letter-spacing: 0.28em;
+            opacity: 0.7;
+        }
+
+        .elevator-title {
+            font-family: var(--font-h);
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 0.04em;
+        }
+
+        .elevator-sub {
+            font-family: var(--scp-mono);
+            font-size: 0.6rem;
+            color: var(--scp-muted);
+            letter-spacing: 0.18em;
+        }
+
+        .elevator-manifest {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 52vh;
+            overflow-y: auto;
+            scrollbar-width: none;
+            margin-bottom: 1.25rem;
+        }
+
+        .elevator-manifest::-webkit-scrollbar {
+            display: none
+        }
+
+        .manifest-entry {
+            display: grid;
+            grid-template-columns: 2rem 44px 1fr auto auto;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 0.9rem;
+            border: 1px solid var(--entry-color, rgba(57, 231, 95, 0.12));
+            border-left: 3px solid var(--entry-color, rgba(57, 231, 95, 0.3));
+            border-radius: 2px;
+            background: rgba(0, 0, 0, 0.3);
+            animation: manifestSlide 0.3s ease both;
+        }
+
+        @keyframes manifestSlide {
+            from {
+                opacity: 0;
+                transform: translateX(-10px)
+            }
+
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .manifest-entry.dead-entry {
+            --entry-color: rgba(255, 34, 34, 0.2);
+            opacity: 0.55;
+            filter: saturate(0.3);
+        }
+
+        .manifest-entry.first-entry {
+            --entry-color: rgba(255, 170, 0, 0.4);
+            background: rgba(255, 170, 0, 0.04);
+        }
+
+        .me-rank {
+            font-family: var(--scp-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--entry-color, var(--scp-muted));
+            text-align: center;
+        }
+
+        .me-avatar {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed var(--entry-color, var(--scp-g-dim));
+            border-radius: 3px;
+            background: rgba(0, 0, 0, 0.4);
+            font-size: 0.6rem;
+            font-family: var(--scp-mono);
+            color: var(--entry-color, var(--scp-muted));
+            opacity: 0.6;
+            letter-spacing: 0.1em;
+        }
+
+        .manifest-entry.dead-entry .me-avatar {
+            opacity: 0.3
+        }
+
+        .me-name {
+            font-family: var(--scp-mono);
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--scp-text);
+        }
+
+        .me-status {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .me-score {
+            font-family: var(--font-h);
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--entry-color, var(--scp-g));
+            white-space: nowrap;
+        }
+
+        .manifest-entry.first-entry .me-score {
+            color: var(--scp-amber)
+        }
+
+        .elevator-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .elevator-progress {
+            font-family: var(--scp-mono);
+            font-size: 0.62rem;
+            color: var(--scp-muted);
+            letter-spacing: 0.12em;
+        }
+
+        /* ─────────────────────── KILLING ROOM ─────────────────────── */
+        #s-killing-room {
+            background: var(--scp-bg)
+        }
+
+        #s-killing-room::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background: radial-gradient(ellipse 50% 40% at 50% 50%, rgba(255, 34, 34, 0.06), transparent 65%);
+            animation: staticNoise 0.12s steps(1) infinite;
+        }
+
+        /* KILLING ROOM INTRO */
+        .kr-intro {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            background: var(--scp-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .kr-intro[hidden] {
+            display: none
+        }
+
+        .kr-warning-stripe {
+            display: flex;
+            gap: 0;
+            width: 100%;
+            overflow: hidden;
+            height: 6px;
+            background: repeating-linear-gradient(90deg,
+                    var(--scp-r) 0, var(--scp-r) 24px,
+                    var(--scp-bg) 24px, var(--scp-bg) 48px);
+            animation: warningBlink 0.7s ease-in-out infinite;
+        }
+
+        .kr-designation {
+            font-family: var(--scp-mono);
+            font-size: 0.65rem;
+            color: var(--scp-r);
+            letter-spacing: 0.35em;
+            opacity: 0.7;
+        }
+
+        .kr-room-name {
+            font-family: var(--font-h);
+            font-size: clamp(2.5rem, 8vw, 5.5rem);
+            font-weight: 900;
+            color: var(--scp-r);
+            line-height: 0.9;
+            text-align: center;
+            letter-spacing: -0.02em;
+            text-shadow: 0 0 60px rgba(255, 34, 34, 0.4);
+            animation: flicker 3s ease-in-out infinite;
+        }
+
+        .kr-room-subname {
+            font-family: var(--scp-mono);
+            font-size: 0.8rem;
+            color: var(--scp-text);
+            letter-spacing: 0.2em;
+            opacity: 0.6;
+            text-align: center;
+        }
+
+        .kr-flavor {
+            font-family: var(--scp-mono);
+            font-size: 0.72rem;
+            color: var(--scp-muted);
+            letter-spacing: 0.1em;
+            max-width: 460px;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        /* KILLING ROOM CHALLENGE */
+        .kr-wrap {
+            width: 100%;
+            height: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem 1.5rem 1.25rem;
+            gap: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .kr-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 34, 34, 0.2);
+            padding-bottom: 0.6rem;
+        }
+
+        .kr-header-title {
+            font-family: var(--scp-mono);
+            font-size: 0.65rem;
+            color: var(--scp-r);
+            letter-spacing: 0.3em;
+        }
+
+        .kr-challenge-card {
+            flex: 1;
+            background: var(--scp-card);
+            border: 1px solid rgba(255, 34, 34, 0.2);
+            border-radius: 3px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .kr-challenge-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: repeating-linear-gradient(90deg,
+                    var(--scp-r) 0, var(--scp-r) 8px, transparent 8px, transparent 16px);
+            opacity: 0.7;
+        }
+
+        .kr-challenge-label {
+            font-family: var(--scp-mono);
+            font-size: 0.6rem;
+            color: rgba(255, 34, 34, 0.6);
+            letter-spacing: 0.25em;
+        }
+
+        .kr-challenge-content {
+            font-family: var(--scp-mono);
+            font-size: clamp(1rem, 2.5vw, 1.6rem);
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-align: center;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px dashed rgba(255, 34, 34, 0.15);
+            border-radius: 2px;
+        }
+
+        .kr-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 0.5rem
+        }
+
+        .kr-option-btn {
+            background: rgba(255, 34, 34, 0.04);
+            border: 1px solid rgba(255, 34, 34, 0.2);
+            border-left: 3px solid var(--scp-r);
+            border-radius: 3px;
+            padding: 0.85rem 1rem;
+            font-family: var(--scp-mono);
+            font-size: 0.88rem;
+            color: var(--scp-text);
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.15s, border-color 0.15s;
+            letter-spacing: 0.04em;
+        }
+
+        .kr-option-btn:hover:not(:disabled) {
+            background: rgba(255, 34, 34, 0.1);
+            border-color: rgba(255, 34, 34, 0.5);
+            color: #fff;
+        }
+
+        .kr-option-btn.kr-correct {
+            background: rgba(57, 231, 95, 0.08);
+            border-color: var(--scp-g);
+            color: var(--scp-g);
+        }
+
+        .kr-option-btn.kr-wrong {
+            background: rgba(255, 34, 34, 0.1);
+            border-color: var(--scp-r);
+            color: var(--scp-r);
+        }
+
+        .kr-option-btn:disabled {
+            cursor: default
+        }
+
+        /* type-specific room colors */
+        #s-killing-room[data-room="element-vault"] .kr-challenge-card {
+            border-color: rgba(56, 189, 248, 0.25)
+        }
+
+        #s-killing-room[data-room="element-vault"] .kr-challenge-card::before {
+            background: repeating-linear-gradient(90deg, #38bdf8 0, #38bdf8 8px, transparent 8px, transparent 16px);
+        }
+
+        #s-killing-room[data-room="reaction-forge"] .kr-challenge-card {
+            border-color: rgba(251, 146, 60, 0.25)
+        }
+
+        #s-killing-room[data-room="reaction-forge"] .kr-challenge-card::before {
+            background: repeating-linear-gradient(90deg, #fb923c 0, #fb923c 8px, transparent 8px, transparent 16px);
+        }
+
+        /* player response grid on killing room host view */
+        .kr-response-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center
+        }
+
+        .kr-response-chip {
+            font-family: var(--scp-mono);
+            font-size: 0.72rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 2px;
+            border: 1px solid var(--scp-g-dim);
+            color: var(--scp-muted);
+            transition: border-color 0.2s, color 0.2s;
+            letter-spacing: 0.06em;
+        }
+
+        .kr-response-chip.answered {
+            border-color: var(--scp-amber);
+            color: var(--scp-amber)
+        }
+
+        .kr-response-chip.correct {
+            border-color: var(--scp-g);
+            color: var(--scp-g)
+        }
+
+        .kr-response-chip.wrong {
+            border-color: var(--scp-r);
+            color: var(--scp-r)
+        }
+
+        /* ─────────────────────── ELEVATOR ANIMATION ─────────────────────── */
+        @keyframes elevatorDescend {
+            from {
+                transform: translateY(-100vh);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .elevator-shaft {
+            animation: shaftScroll 0.9s linear;
+        }
+
+        @keyframes shaftScroll {
+            from {
+                background-position: 0 -200px;
+            }
+
+            to {
+                background-position: 0 0;
+            }
+        }
+
+        /* ─────────────────────── KR SHARED NEW ─────────────────────── */
+        @keyframes krShake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            10% {
+                transform: translateX(-8px) rotate(-0.4deg);
+            }
+
+            30% {
+                transform: translateX(8px) rotate(0.4deg);
+            }
+
+            50% {
+                transform: translateX(-5px);
+            }
+
+            70% {
+                transform: translateX(5px);
+            }
+
+            90% {
+                transform: translateX(-2px);
+            }
+        }
+
+        .kr-shake {
+            animation: krShake 0.48s cubic-bezier(.36, .07, .19, .97) both !important;
+        }
+
+        /* instruction card */
+        .kr-instructions {
+            position: absolute;
+            inset: 0;
+            z-index: 30;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--scp-bg);
+            gap: 1.25rem;
+            padding: 2rem;
+        }
+
+        .kr-instructions[hidden] {
+            display: none;
+        }
+
+        .kr-instr-eyebrow {
+            font-family: var(--scp-mono);
+            font-size: 0.58rem;
+            letter-spacing: 0.32em;
+            color: var(--scp-r);
+            opacity: 0.7;
+        }
+
+        .kr-instr-title {
+            font-family: var(--font-h);
+            font-size: clamp(1.8rem, 5vw, 3.2rem);
+            font-weight: 900;
+            color: #fff;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .kr-instr-sub {
+            font-family: var(--scp-mono);
+            font-size: 0.65rem;
+            letter-spacing: 0.22em;
+            color: var(--scp-muted);
+        }
+
+        .kr-instr-body {
+            font-family: var(--scp-mono);
+            font-size: 0.8rem;
+            color: var(--scp-text);
+            max-width: 500px;
+            text-align: center;
+            line-height: 1.9;
+            white-space: pre-line;
+            border: 1px solid var(--scp-g-dim);
+            border-radius: 3px;
+            padding: 1rem 1.5rem;
+            background: var(--scp-card);
+        }
+
+        #btn-kr-start {
+            padding: 0.9rem 2.5rem;
+            font-size: 0.92rem;
+            background: var(--scp-g);
+            color: #050e0a;
+            box-shadow: 0 0 32px rgba(57, 231, 95, 0.35);
+        }
+
+        #btn-kr-start:hover {
+            opacity: 0.88;
+            transform: translateY(-2px);
+        }
+
+        /* plinko canvas wrapper */
+        #plinko-canvas {
+            border: 1px solid var(--scp-g-dim);
+        }
+
+        /* wheel canvas */
+        #wheel-canvas {
+            filter: drop-shadow(0 0 12px rgba(255, 34, 34, 0.25));
+        }
+
+        /* cups */
+        .kr-cup {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            cursor: default;
+            transition: transform 0.2s;
+        }
+
+        .cup-body {
+            width: 48px;
+            height: 60px;
+            background: linear-gradient(180deg, rgba(56, 189, 248, 0.12) 0%, rgba(56, 189, 248, 0.22) 100%);
+            border: 1.5px solid rgba(56, 189, 248, 0.4);
+            border-radius: 4px 4px 14px 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cup-body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .cup-base {
+            width: 30px;
+            height: 6px;
+            background: rgba(56, 189, 248, 0.3);
+            border-radius: 2px;
+        }
+
+        .cup-label {
+            font-family: var(--scp-mono);
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: rgba(56, 189, 248, 0.7);
+            letter-spacing: 0.1em;
+        }
+
+        .kr-cup.cup-poisoned .cup-body {
+            background: linear-gradient(180deg, rgba(255, 34, 34, 0.2) 0%, rgba(255, 34, 34, 0.35) 100%);
+            border-color: var(--scp-r);
+            box-shadow: 0 0 16px rgba(255, 34, 34, 0.3);
+        }
+
+        .kr-cup.cup-poisoned .cup-label {
+            color: var(--scp-r);
+        }
+
+        /* password host grid */
+        #pw-host-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            justify-content: center;
+        }
+
+        .pw-host-card {
+            background: var(--scp-card);
+            border: 1px solid var(--scp-g-dim);
+            border-radius: 3px;
+            padding: 0.65rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            min-width: 120px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        .pw-host-card.pw-set {
+            border-color: rgba(57, 231, 95, 0.35);
+        }
+
+        .pw-host-name {
+            font-family: var(--scp-mono);
+            font-size: 0.72rem;
+            color: var(--scp-text);
+        }
+
+        .pw-host-word {
+            font-family: var(--scp-mono);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--scp-g);
+            letter-spacing: 0.2em;
+        }
+
+        .pw-crack-status {
+            font-family: var(--scp-mono);
+            font-size: 0.6rem;
+            color: var(--scp-muted);
+        }
+
+        /* dice host grid */
+        #dice-host-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            justify-content: center;
+        }
+
+        .dice-host-card {
+            background: var(--scp-card);
+            border: 1px solid var(--scp-g-dim);
+            border-radius: 3px;
+            padding: 0.8rem 1rem;
+            min-width: 110px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            transition: border-color 0.3s;
+        }
+
+        .dice-host-card.bust {
+            border-color: rgba(255, 34, 34, 0.4);
+        }
+
+        .dice-host-card.held {
+            border-color: rgba(255, 201, 77, 0.4);
+        }
+
+        .dice-host-name {
+            font-family: var(--scp-mono);
+            font-size: 0.72rem;
+            color: var(--scp-text);
+        }
+
+        .dice-host-total {
+            font-family: var(--font-h);
+            font-size: 2rem;
+            font-weight: 900;
+        }
+
+        .dice-host-status {
+            font-family: var(--scp-mono);
+            font-size: 0.58rem;
+            letter-spacing: 0.1em;
+            color: var(--scp-muted);
+        }
+
+        /* lottery host */
+        #lottery-host-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            justify-content: center;
+        }
+
+        .lottery-host-card {
+            background: var(--scp-card);
+            border: 1px solid var(--scp-g-dim);
+            border-radius: 3px;
+            padding: 0.6rem 1rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            font-family: var(--scp-mono);
+            font-size: 0.72rem;
+            color: var(--scp-text);
+        }
+
+        /* bet host */
+        #bet-host-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        /* ─────────────────────── ENDED ─────────────────────── */
+        #s-ended {
+            background: var(--scp-bg)
+        }
+
+        .ended-inner {
+            max-width: 640px;
+            width: 100%;
+            text-align: center
+        }
+
+        .winner-crown {
+            font-size: 3.5rem;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            animation: flicker 5s ease-in-out infinite
+        }
+
+        .winner-name {
+            font-family: var(--font-h);
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 900;
+            color: var(--scp-amber);
+            text-shadow: 0 0 40px rgba(255, 170, 0, 0.4);
+            margin-bottom: 0.25rem;
+        }
+
+        .winner-score {
+            font-family: var(--scp-mono);
+            font-size: 1.1rem;
+            color: var(--scp-muted);
+            margin-bottom: 2.5rem
+        }
+
+        .final-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-bottom: 2rem
+        }
+
+        .final-entry {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--scp-card);
+            border: 1px solid var(--scp-g-dim);
+            border-left: 3px solid var(--scp-g-dim);
+            border-radius: 2px;
+            padding: 0.7rem 1.1rem;
+        }
+
+        .fe-rank {
+            font-family: var(--scp-mono);
+            font-weight: 700;
+            color: var(--scp-muted);
+            width: 2rem;
+            text-align: center
+        }
+
+        .fe-name {
+            flex: 1;
+            font-family: var(--scp-mono);
+            font-size: 0.88rem;
+            color: var(--scp-text)
+        }
+
+        .fe-score {
+            font-family: var(--font-h);
+            font-weight: 800;
+            color: var(--scp-g)
+        }
+
+        /* Error toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a0a0a;
+            border: 1px solid var(--red);
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            color: var(--red);
+            font-size: 0.85rem;
+            z-index: 999;
+            animation: toastIn 0.3s ease;
+            pointer-events: none;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(10px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0)
+            }
+        }
+
+        /* ─────────────────────── ANIMATIONS ─────────────────────── */
+        @keyframes heartLost {
+            0% {
+                transform: scale(1)
+            }
+
+            20% {
+                transform: scale(1.4);
+                filter: brightness(2)
+            }
+
+            50% {
+                transform: scale(0.7);
+                opacity: 0.3
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1
+            }
+        }
+
+        .heart-alive.losing {
+            animation: heartLost 0.55s cubic-bezier(.36, .07, .19, .97) both
+        }
+
+        @keyframes flashCorrect {
+            0% {
+                opacity: 0
+            }
+
+            25% {
+                opacity: 1
+            }
+
+            100% {
+                opacity: 0
+            }
+        }
+
+        @keyframes flashWrong {
+            0% {
+                opacity: 0
+            }
+
+            20% {
+                opacity: 1
+            }
+
+            60% {
+                opacity: 0.6
+            }
+
+            100% {
+                opacity: 0
+            }
+        }
+
+        .screen-flash-correct {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            pointer-events: none;
+            background: rgba(74, 222, 128, 0.12);
+            animation: flashCorrect 0.7s ease forwards;
+        }
+
+        .screen-flash-wrong {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            pointer-events: none;
+            background: rgba(248, 113, 113, 0.18);
+            animation: flashWrong 0.85s ease forwards;
+        }
+
+        @keyframes cardRevealIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.95)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1)
+            }
+        }
+
+        .pr-card {
+            animation: cardRevealIn 0.35s ease both !important
+        }
+    </style>
+</head>
+
+<body data-q="1">
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- ══════════════ LOBBY ══════════════ -->
+    <div id="s-lobby" class="screen">
+        <div class="lobby-inner">
+
+            <!-- header -->
+            <p class="chamber-eyebrow">Q1 · Reaction Rumble · Host</p>
+            <h1 class="chamber-title">DENATURATION<br><span>CHAMBER</span></h1>
+            <div class="chamber-divider"></div>
+            <p class="chamber-sub">Condemned specimens await processing.</p>
+
+            <!-- create / code area -->
+            <div id="create-area">
+                <button id="btn-create" class="btn-primary btn-condemn">Initialize Chamber</button>
+            </div>
+
+            <div id="room-area" hidden
+                style="width:100%;display:flex;flex-direction:column;align-items:center;gap:1.25rem">
+                <div class="chamber-code-wrap">
+                    <p class="chamber-code-label">Cell Block Code</p>
+                    <div class="chamber-code" id="rc-display">----</div>
+                    <p class="chamber-code-hint">Players open <strong>q1g-player.html</strong> and enter this code</p>
+                </div>
+
+                <div class="chamber-ticker">
+                    <span class="ticker-dot"></span>
+                    AWAITING SPECIMENS
+                    <span class="ticker-dot"></span>
+                </div>
+
+                <!-- cell block -->
+                <div class="cell-block-wrap">
+                    <div class="cell-block" id="cell-block">
+                        <div class="cell-block-empty" id="cell-empty">
+                            <div class="empty-tubes">
+                                <div class="empty-tube"></div>
+                                <div class="empty-tube"></div>
+                                <div class="empty-tube"></div>
+                            </div>
+                            <p class="empty-label">No specimens yet</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="btn-start" class="btn-primary btn-condemn" disabled>Awaiting specimens…</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ══════════════ QUESTION ══════════════ -->
+    <div id="s-question" class="screen screen-scp" hidden>
+        <!-- pods along left side -->
+        <div class="question-pods pods-left" id="q-pods-left"></div>
+        <!-- pods along right side -->
+        <div class="question-pods pods-right" id="q-pods-right"></div>
+        <div class="q-screen-inner">
+            <div class="q-topbar">
+                <div class="q-topbar-left">
+                    <div class="q-badge-num" id="q-badge-num">FILE 01/10</div>
+                    <div class="q-room-tag" id="q-room-tag">----</div>
+                </div>
+                <div class="timer-wrap">
+                    <svg class="timer-ring" viewBox="0 0 72 72">
+                        <circle class="timer-track" cx="36" cy="36" r="30" />
+                        <circle class="timer-arc" id="timer-arc" cx="36" cy="36" r="30" stroke-dasharray="188.5"
+                            stroke-dashoffset="0" />
+                    </svg>
+                    <div class="timer-num" id="timer-num">20</div>
+                </div>
+                <div class="answer-tally" id="answer-tally"><span>0</span>/0 responded</div>
+            </div>
+
+            <div class="case-file">
+                <div class="case-file-header">
+                    <span class="case-id" id="case-id">CASE//RXN-001</span>
+                    <span class="case-class">KETER-CLASS</span>
+                </div>
+                <p class="case-label">EXHIBIT A — IDENTIFY REACTION TYPE</p>
+                <div class="eq-display" id="eq-display">—</div>
+            </div>
+
+            <div class="choices-grid" id="choices-grid"></div>
+        </div>
+    </div>
+
+    <!-- ══════════════ REVEAL ══════════════ -->
+    <div id="s-reveal" class="screen" hidden>
+        <div class="reveal-inner">
+            <p class="eyebrow">VERDICT</p>
+            <div class="verdict-box">
+                <span class="verdict-label">CORRECT ANSWER</span>
+                <div class="correct-box" id="correct-box">—</div>
+            </div>
+            <p class="hint-txt" id="hint-txt"></p>
+
+            <!-- Pods display: correct slide off, wrong center -->
+            <div class="wrong-pods-center" id="wrong-pods-center"></div>
+
+            <div class="player-results" id="player-results"></div>
+            <button id="btn-to-kr" class="btn-primary btn-condemn" hidden>KILLING ROOM →</button>
+            <button id="btn-next-safe" class="btn-primary btn-condemn" hidden>NEXT QUESTION →</button>
+        </div>
+    </div>
+
+    <!-- ══════════════ NO VICTIMS INTERSTITIAL ══════════════ -->
+    <div id="s-no-victims" class="screen" hidden>
+        <div style="max-width:500px;text-align:center">
+            <p
+                style="font-family:var(--scp-mono);font-size:0.6rem;color:var(--scp-r);letter-spacing:0.3em;opacity:0.6;margin-bottom:1rem">
+                STATUS REPORT</p>
+            <h2
+                style="font-family:var(--font-h);font-size:2rem;font-weight:900;color:var(--scp-text);margin-bottom:0.5rem">
+                No victims this round.</h2>
+            <p style="font-family:var(--scp-mono);font-size:0.8rem;color:var(--scp-muted);letter-spacing:0.1em">…yet.
+            </p>
+        </div>
+    </div>
+
+    <!-- ══════════════ ELEVATOR INTERMISSION ══════════════ -->
+    <div id="s-leaderboard" class="screen screen-scp" hidden>
+        <div class="elevator-wrap">
+            <div class="elevator-shaft"></div>
+            <div class="shaft-left"></div>
+            <div class="shaft-right"></div>
+
+            <div class="elevator-car">
+                <div class="elevator-header">
+                    <div>
+                        <p class="elevator-floor" id="elevator-floor">FLOOR 01 // POST-ROUND DEBRIEF</p>
+                        <p class="elevator-title">SPECIMEN MANIFEST</p>
+                    </div>
+                    <p class="elevator-sub">ALIVE ◆ DECEASED</p>
+                </div>
+
+                <div class="elevator-manifest" id="elevator-manifest">
+                    <!-- populated by JS -->
+                </div>
+
+                <div class="elevator-footer">
+                    <span class="elevator-progress" id="elevator-progress">ROUND 1 / 10 COMPLETE</span>
+                    <button id="btn-next-q" class="btn-primary btn-condemn"
+                        style="padding:0.65rem 1.5rem;font-size:0.8rem">—</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════ KILLING ROOM ══════════════ -->
+    <div id="s-killing-room" class="screen screen-scp" hidden data-room="">
+
+        <!-- dramatic intro overlay -->
+        <div id="kr-intro-overlay" class="kr-intro">
+            <div class="kr-warning-stripe"></div>
+            <p class="kr-designation">⚠ CHAMBER OVERRIDE DETECTED ⚠</p>
+            <h2 class="kr-room-name" id="kr-room-name-display">—</h2>
+            <p class="kr-room-subname" id="kr-room-subname">—</p>
+            <p class="kr-flavor" id="kr-flavor-text">—</p>
+            <div class="kr-warning-stripe"></div>
+        </div>
+
+        <!-- instruction overlay (shown between intro and gameplay) -->
+        <div id="kr-instructions" class="kr-instructions" hidden>
+            <p class="kr-instr-eyebrow">⚠ ROOM BRIEFING ⚠</p>
+            <h2 class="kr-instr-title" id="kr-instr-title">—</h2>
+            <p class="kr-instr-sub" id="kr-instr-sub">—</p>
+            <p class="kr-instr-body" id="kr-instr-body">—</p>
+            <button id="btn-kr-start" class="btn-primary btn-condemn">START CHALLENGE →</button>
+        </div>
+
+        <!-- challenge content (shown after intro) -->
+        <div class="kr-wrap" id="kr-content" hidden>
+            <div class="kr-header">
+                <span class="kr-header-title" id="kr-header-title">ROOM DESIGNATION: —</span>
+                <div class="timer-wrap" style="width:56px;height:56px">
+                    <svg class="timer-ring" viewBox="0 0 72 72" style="width:56px;height:56px">
+                        <circle class="timer-track" cx="36" cy="36" r="30" />
+                        <circle class="timer-arc" id="kr-timer-arc" cx="36" cy="36" r="30" stroke="var(--scp-r)"
+                            stroke-dasharray="188.5" stroke-dashoffset="0" />
+                    </svg>
+                    <div class="timer-num" id="kr-timer-num" style="color:var(--scp-r);font-size:1.1rem">15</div>
+                </div>
+            </div>
+
+            <div class="kr-challenge-card">
+                <span class="kr-challenge-label" id="kr-challenge-label">CHALLENGE CONTENT</span>
+                <div class="kr-challenge-content" id="kr-challenge-content">—</div>
+                <div class="kr-options" id="kr-options"></div>
+            </div>
+
+            <div>
+                <p
+                    style="font-family:var(--scp-mono);font-size:0.6rem;color:var(--scp-muted);letter-spacing:0.18em;margin-bottom:0.5rem">
+                    PLAYER RESPONSES</p>
+                <div class="kr-response-grid" id="kr-response-grid"></div>
+            </div>
+
+            <button id="btn-kr-reveal" class="btn-primary btn-condemn" style="width:100%;margin-top:0.5rem" hidden>
+                REVEAL RESULTS
+            </button>
+            <button id="btn-kr-continue" class="btn-primary" style="width:100%;margin-top:0.5rem" hidden>
+                CONTINUE TO LEADERBOARD →
+            </button>
+        </div>
+    </div>
+
+    <!-- ══════════════ ENDED ══════════════ -->
+    <div id="s-ended" class="screen" hidden>
+        <div class="ended-inner">
+            <p class="eyebrow">Game Over · Final Results</p>
+            <div class="winner-crown">👑</div>
+            <div class="winner-name" id="winner-name">—</div>
+            <div class="winner-score" id="winner-score">0 pts</div>
+            <div class="final-list" id="final-list"></div>
+            <button id="btn-again" class="btn-ghost">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        'use strict';
+
+        /* ══════════════════════════════════════════════════════════
+           FIREBASE CONFIG — replace with your actual project values
+           ══════════════════════════════════════════════════════════ */
+        const firebaseConfig = {
+            apiKey: "AIzaSyAsa4aXYagT0IQDh_Jg6yBdxsWM3XbupI8",
+            authDomain: "iclp-chem-78eae.firebaseapp.com",
+            databaseURL: "https://iclp-chem-78eae-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "iclp-chem-78eae",
+            storageBucket: "iclp-chem-78eae.firebasestorage.app",
+            messagingSenderId: "845066709654",
+            appId: "1:845066709654:web:b80fe0623c549428a730b7"
+
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        /* ══════════════════════════════════════════════════════════
+           QUESTION DATA
+           TODO: Replace this with a loader that reads questions.txt
+           Format per line: equation|answer|hint
+           ══════════════════════════════════════════════════════════ */
+        const TYPES = ['Synthesis', 'Decomposition', 'Single Replacement', 'Double Replacement', 'Combustion'];
+        const RAW_Q = [
+            { eq: '2H₂ + O₂ → 2H₂O', answer: 'Synthesis', hint: 'Two reactants combine into a single product.' },
+            { eq: '2H₂O → 2H₂ + O₂', answer: 'Decomposition', hint: 'One compound splits into simpler substances.' },
+            { eq: 'Zn + 2HCl → ZnCl₂ + H₂', answer: 'Single Replacement', hint: 'Zinc displaces hydrogen from the acid.' },
+            { eq: 'AgNO₃ + NaCl → AgCl + NaNO₃', answer: 'Double Replacement', hint: 'Two compounds exchange their ions.' },
+            { eq: 'CH₄ + 2O₂ → CO₂ + 2H₂O', answer: 'Combustion', hint: 'A hydrocarbon reacts with oxygen.' },
+            { eq: '4Al + 3O₂ → 2Al₂O₃', answer: 'Synthesis', hint: 'Two elements combine into one compound.' },
+            { eq: '2KClO₃ → 2KCl + 3O₂', answer: 'Decomposition', hint: 'One reactant breaks into multiple products.' },
+            { eq: 'Fe + CuSO₄ → FeSO₄ + Cu', answer: 'Single Replacement', hint: 'Iron is more reactive and displaces copper.' },
+            { eq: 'BaCl₂ + Na₂SO₄ → BaSO₄ + 2NaCl', answer: 'Double Replacement', hint: 'Barium and sodium swap their anions.' },
+            { eq: 'C₃H₈ + 5O₂ → 3CO₂ + 4H₂O', answer: 'Combustion', hint: 'Propane burns in oxygen.' },
+        ];
+        const TIMER_SEC = 20;
+        const CHOICE_COLORS = ['var(--q1)', 'var(--q2)', 'var(--q3)', 'var(--q4)'];
+
+        /* ══════════════════════════════════════════════════════════
+           AMINO ACID CHARACTER REGISTRY
+           ══════════════════════════════════════════════════════════ */
+        const AMINO_ACIDS = [
+            { letter: 'G', name: 'Glycine', color: '#00d4ff', dim: 'rgba(0,212,255,0.12)', glow: 'rgba(0,212,255,0.25)' },
+            { letter: 'A', name: 'Alanine', color: '#ffc94d', dim: 'rgba(255,201,77,0.12)', glow: 'rgba(255,201,77,0.25)' },
+            { letter: 'V', name: 'Valine', color: '#a78bfa', dim: 'rgba(167,139,250,0.12)', glow: 'rgba(167,139,250,0.25)' },
+            { letter: 'L', name: 'Leucine', color: '#f87171', dim: 'rgba(248,113,113,0.12)', glow: 'rgba(248,113,113,0.25)' },
+            { letter: 'P', name: 'Proline', color: '#4ade80', dim: 'rgba(74,222,128,0.12)', glow: 'rgba(74,222,128,0.25)' },
+            { letter: 'F', name: 'Phe', color: '#fb923c', dim: 'rgba(251,146,60,0.12)', glow: 'rgba(251,146,60,0.25)' },
+            { letter: 'W', name: 'Trp', color: '#e879f9', dim: 'rgba(232,121,249,0.12)', glow: 'rgba(232,121,249,0.25)' },
+            { letter: 'S', name: 'Serine', color: '#38bdf8', dim: 'rgba(56,189,248,0.12)', glow: 'rgba(56,189,248,0.25)' },
+        ];
+
+        /* Faces: each amino acid has a distinct SVG expression */
+        const AMINO_FACES = {
+            G: (c) => `<ellipse cx="40" cy="42" rx="26" ry="28" fill="#0a1a22" stroke="${c}" stroke-width="1.5"/>
+             <circle cx="31" cy="37" r="5" fill="${c}"/><circle cx="49" cy="37" r="5" fill="${c}"/>
+             <circle cx="32" cy="38" r="2.2" fill="#000"/><circle cx="50" cy="38" r="2.2" fill="#000"/>
+             <circle cx="31" cy="36" r="1" fill="${c}" opacity=".6"/>
+             <path d="M32 52 Q40 60 48 52" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round"/>`,
+            A: (c) => `<ellipse cx="40" cy="43" rx="25" ry="27" fill="#0a1a22" stroke="${c}" stroke-width="1.5"/>
+             <ellipse cx="32" cy="37" rx="4.5" ry="3.5" fill="${c}"/><ellipse cx="48" cy="37" rx="4.5" ry="3.5" fill="${c}"/>
+             <circle cx="33" cy="37" r="2" fill="#000"/><circle cx="49" cy="37" r="2" fill="#000"/>
+             <path d="M34 51 Q40 47 46 51" fill="none" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>
+             <line x1="40" y1="15" x2="40" y2="12" stroke="${c}" stroke-width="1.5"/>
+             <line x1="40" y1="12" x2="37" y2="8" stroke="${c}" stroke-width="1.5"/>
+             <line x1="40" y1="12" x2="43" y2="8" stroke="${c}" stroke-width="1.5"/>`,
+            V: (c) => `<ellipse cx="40" cy="42" rx="26" ry="28" fill="#0a1a22" stroke="${c}" stroke-width="1.5"/>
+             <path d="M29 35 Q32 39 35 35" fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>
+             <path d="M45 35 Q48 39 51 35" fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>
+             <path d="M33 51 Q40 53 47 51" fill="none" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>
+             <circle cx="33" cy="37" r="1.5" fill="${c}"/><circle cx="47" cy="37" r="1.5" fill="${c}"/>`,
+            L: (c) => `<ellipse cx="40" cy="42" rx="26" ry="28" fill="#0a1a22" stroke="${c}" stroke-width="1.5"/>
+             <path d="M28 33 L35 38" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>
+             <path d="M52 33 L45 38" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>
+             <circle cx="33" cy="38" r="3" fill="${c}"/><circle cx="47" cy="38" r="3" fill="${c}"/>
+             <circle cx="34" cy="38" r="1.5" fill="#000"/><circle cx="48" cy="38" r="1.5" fill="#000"/>
+             <path d="M32 53 Q40 48 48 53" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round"/>`,
+            P: (c) => `<ellipse cx="40" cy="42" rx="26" ry="28" fill="#0a1a22" stroke="${c}" stroke-width="1.5"/>
+             <circle cx="32" cy="37" r="5.5" fill="${c}"/><circle cx="48" cy="37" r="5.5" fill="${c}"/>
+             <circle cx="31" cy="37" r="2.5" fill="#000"/><circle cx="47" cy="37" r="2.5" fill="#000"/>
+             <circle cx="30" cy="36" r="1.2" fill="${c}" opacity=".7"/>
+             <path d="M30 51 Q40 62 50 51" fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>`,
+            F: (c) => `<ellipse cx="40" cy="42" rx="26" ry="28" fill="#0a1a22" stroke="${c}" stroke-width="1.5"/>
+             <rect x="28" y="34" width="8" height="5" rx="2" fill="${c}"/>
+             <rect x="44" y="34" width="8" height="5" rx="2" fill="${c}"/>
+             <circle cx="33" cy="36" r="1.8" fill="#000"/><circle cx="49" cy="36" r="1.8" fill="#000"/>
+             <path d="M32 50 Q36 54 40 50 Q44 46 48 50" fill="none" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>
+             <circle cx="40" cy="45" r="1.5" fill="${c}" opacity=".5"/>`,
+            W: (c) => `<ellipse cx="40" cy="42" rx="26" ry="28" fill="#0a1a22" stroke="${c}" stroke-width="1.5"/>
+             <circle cx="32" cy="36" r="6" fill="${c}"/><circle cx="48" cy="36" r="6" fill="${c}"/>
+             <circle cx="32" cy="36" r="3" fill="#000"/><circle cx="48" cy="36" r="3" fill="#000"/>
+             <circle cx="31" cy="35" r="1.5" fill="${c}" opacity=".8"/><circle cx="47" cy="35" r="1.5" fill="${c}" opacity=".8"/>
+             <ellipse cx="40" cy="54" rx="7" ry="4.5" fill="none" stroke="${c}" stroke-width="1.8"/>`,
+            S: (c) => `<ellipse cx="40" cy="42" rx="26" ry="28" fill="#0a1a22" stroke="${c}" stroke-width="1.5"/>
+             <ellipse cx="32" cy="36" rx="4" ry="5" fill="${c}"/><ellipse cx="48" cy="36" rx="4" ry="5" fill="${c}"/>
+             <circle cx="32" cy="37" r="2" fill="#000"/><circle cx="48" cy="37" r="2" fill="#000"/>
+             <line x1="30" y1="42" x2="30" y2="46" stroke="${c}" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+             <line x1="50" y1="42" x2="50" y2="46" stroke="${c}" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+             <path d="M34 52 Q40 49 46 52" fill="none" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>`,
+        };
+
+        function generateAminoSVG(acid) {
+            /* Try loading custom asset first, fall back to generated SVG */
+            const svgFace = AMINO_FACES[acid.letter] ? AMINO_FACES[acid.letter](acid.color) : '';
+            return `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" width="68" height="68">
+        <defs>
+            <radialGradient id="glow_${acid.letter}" cx="50%" cy="40%" r="55%">
+                <stop offset="0%" stop-color="${acid.color}" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="${acid.color}" stop-opacity="0"/>
+            </radialGradient>
+        </defs>
+        <ellipse cx="40" cy="40" rx="36" ry="38" fill="url(#glow_${acid.letter})"/>
+        ${svgFace}
+        <text x="40" y="72" text-anchor="middle" fill="${acid.color}" font-family="Rubik,sans-serif"
+              font-size="9" font-weight="900" opacity="0.7" letter-spacing="1">${acid.name.toUpperCase()}</text>
+    </svg>`;
+        }
+
+        /* ══ GAME STATE ══ */
+        let roomCode = null, roomRef = null;
+        let players = {};
+        let questions = [];
+        let currentQ = 0;
+        let timerInterval = null;
+        let timerEndTime = null;
+        let playerListener = null;
+
+        /* ══ UTILS ══ */
+        const $ = id => document.getElementById(id);
+        function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.hidden = true); $(id).hidden = false; }
+        function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]] } return a; }
+        function buildChoices(answer) { return shuffle([answer, ...shuffle(TYPES.filter(t => t !== answer)).slice(0, 3)]); }
+        function prepQuestions() { return shuffle(RAW_Q).slice(0, 10).map(q => ({ ...q, choices: buildChoices(q.answer) })); }
+        function hearts(lives) { return Array.from({ length: 1 }, (_, i) => `<span class="${i < lives ? 'heart-alive' : 'heart-dead'}">♥</span>`).join(''); }
+        function toast(msg) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = msg; document.body.appendChild(d); setTimeout(() => d.remove(), 3000); }
+
+        /* ══ CANVAS BG ══ */
+        (function () {
+            const c = $('bg-canvas'); if (!c) return;
+            const x = c.getContext('2d'); let W, H, pts;
+            class P {
+                constructor() { this.reset(true) } reset(i = false) { this.x = Math.random() * W; this.y = i ? Math.random() * H : H + 10; this.r = Math.random() * 1.2 + 0.3; this.vx = (Math.random() - .5) * .25; this.vy = -(Math.random() * .3 + .08); this.a = Math.random() * .5 + .15; this.col = Math.random() > .5 }
+                update() { this.x += this.vx; this.y += this.vy; if (this.y < -10) this.reset() }
+                draw() { x.beginPath(); x.arc(this.x, this.y, this.r, 0, Math.PI * 2); x.fillStyle = this.col ? 'rgba(0,212,255,1)' : '#fff'; x.globalAlpha = this.a; x.fill(); x.globalAlpha = 1 }
+            }
+            function resize() { W = c.width = window.innerWidth; H = c.height = window.innerHeight }
+            function init() { resize(); pts = Array.from({ length: Math.floor(W * H / 10000) }, () => new P()) }
+            function loop() { x.clearRect(0, 0, W, H); pts.forEach(p => { p.update(); p.draw() }); requestAnimationFrame(loop) }
+            window.addEventListener('resize', init); init(); loop();
+        })();
+
+        /* ══════════════════════════════════════════════════════════
+                               L O B B Y
+           ══════════════════════════════════════════════════════════ */
+        $('btn-create').onclick = async () => {
+            $('btn-create').disabled = true;
+            $('btn-create').textContent = 'Creating…';
+            try {
+                roomCode = Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 33)]).join('');
+                questions = prepQuestions();
+                roomRef = db.ref(`rooms/${roomCode}`);
+
+                await roomRef.set({ state: 'lobby', currentQ: 0, createdAt: firebase.database.ServerValue.TIMESTAMP });
+                roomRef.onDisconnect().remove(); // auto-clean if host disconnects
+
+                $('create-area').hidden = true;
+                $('room-area').hidden = false;
+                $('rc-display').textContent = roomCode;
+
+                // Listen for player joins
+                playerListener = roomRef.child('players').on('value', snap => {
+                    players = snap.val() || {};
+                    renderLobbyPlayers();
+                });
+            } catch (e) {
+                toast('Firebase error — check your config: ' + e.message);
+                $('btn-create').disabled = false;
+                $('btn-create').textContent = 'Create Room';
+            }
+        };
+
+        function renderLobbyPlayers() {
+            const entries = Object.entries(players);
+            const count = entries.length;
+            const startBtn = $('btn-start');
+            const block = $('cell-block');
+            const empty = $('cell-empty');
+
+            startBtn.disabled = count === 0;
+            startBtn.textContent = count === 0
+                ? 'Awaiting specimens…'
+                : `Begin Denaturation — ${count} Specimen${count > 1 ? 's' : ''}`;
+
+            if (count === 0) { empty.hidden = false; return; }
+            empty.hidden = true;
+
+            /* Build amino pods — create new ones, update if amino assignment changed */
+            entries.forEach(([uid, p], idx) => {
+                const assignedIdx = (p.aminoIdx ?? idx);
+                const acid = AMINO_ACIDS[assignedIdx % AMINO_ACIDS.length];
+                const existing = document.getElementById(`pod-${uid}`);
+
+                // If pod already exists and the amino assignment hasn't changed, skip
+                if (existing && existing.dataset.aminoIdx === String(assignedIdx)) return;
+                // Remove stale pod if amino changed (player updated their selection)
+                if (existing) existing.remove();
+
+                const pod = document.createElement('div');
+                pod.className = 'amino-pod';
+                pod.id = `pod-${uid}`;
+                pod.dataset.aminoIdx = assignedIdx;
+                pod.style.setProperty('--pod-color', acid.color);
+                pod.style.setProperty('--pod-dim', acid.dim);
+                pod.style.setProperty('--pod-glow', acid.glow);
+                pod.style.animationDelay = `${idx * 60}ms`;
+                pod.innerHTML = `
+            <div class="pod-cell-tag">CELL ${String(idx + 1).padStart(2, '0')}</div>
+            <div class="pod-glass">
+                <div class="pod-avatar">${generateAminoSVG(acid)}</div>
+                <div class="pod-status-strip">CONDEMNED</div>
+            </div>
+            <div class="pod-footer">
+                <div class="pod-acid-code">${acid.letter} · ${acid.name}</div>
+                <div class="pod-player-name">${p.name}</div>
+            </div>`;
+                block.appendChild(pod);
+            });
+        }
+
+        /* triggerDeathAnimation — call on a player's pod when they die */
+        function triggerDeathAnimation(uid) {
+            const pod = document.getElementById(`pod-${uid}`);
+            if (!pod) return;
+            const glass = pod.querySelector('.pod-glass');
+            const color = getComputedStyle(pod).getPropertyValue('--pod-color').trim() || '#39e75f';
+
+            // Spawn 12 shards
+            for (let i = 0; i < 12; i++) {
+                const s = document.createElement('div');
+                s.className = 'bond-shard';
+                s.style.setProperty('--angle', (i * 30) + 'deg');
+                s.style.setProperty('--dist', -(30 + Math.random() * 30) + 'px');
+                s.style.background = color;
+                s.style.left = '44px'; s.style.top = '44px';
+                s.style.animationDelay = (Math.random() * 80) + 'ms';
+                glass.appendChild(s);
+                s.addEventListener('animationend', () => s.remove());
+            }
+            pod.classList.add('dying');
+            setTimeout(() => pod.classList.replace('dying', 'dead'), 750);
+        }
+
+        $('btn-start').onclick = startGame;
+
+        /* ══════════════════════════════════════════════════════════
+                           Q U E S T I O N   L O O P
+           ══════════════════════════════════════════════════════════ */
+        async function startGame() {
+            currentQ = 0;
+            // Reset all scores/lives
+            const upd = {};
+            Object.keys(players).forEach(uid => {
+                upd[`players/${uid}/score`] = 0;
+                upd[`players/${uid}/lives`] = 1;
+                upd[`players/${uid}/answered`] = false;
+                upd[`players/${uid}/answer`] = null;
+                upd[`players/${uid}/answerTime`] = null;
+            });
+            await roomRef.update(upd);
+            pushQuestion();
+        }
+
+        async function pushQuestion() {
+            showScreen('s-question');
+            const q = questions[currentQ];
+            timerEndTime = Date.now() + TIMER_SEC * 1000;
+
+            // Reset per-round player state
+            const upd = {
+                state: 'question', currentQ, timerEnd: timerEndTime,
+                question: { eq: q.eq, choices: q.choices }, correctAnswer: null,
+                killingRoom: null
+            };
+            Object.keys(players).forEach(uid => {
+                upd[`players/${uid}/answered`] = false;
+                upd[`players/${uid}/answer`] = null;
+                upd[`players/${uid}/answerTime`] = null;
+                upd[`players/${uid}/krAnswer`] = null;
+                upd[`players/${uid}/krAnswered`] = false;
+                upd[`players/${uid}/safeVote`] = null;
+            });
+            await roomRef.update(upd);
+
+            renderQuestionUI(q);
+            renderQuestionPods();
+            startCountdown();
+
+            // Watch for answers coming in
+            if (playerListener) roomRef.child('players').off('value', playerListener);
+            playerListener = roomRef.child('players').on('value', snap => {
+                players = snap.val() || {};
+                updateTally();
+                updateQuestionPodStates();
+            });
+        }
+
+        function renderQuestionUI(q) {
+            $('q-badge-num').textContent = `FILE ${String(currentQ + 1).padStart(2, '0')}/${String(questions.length).padStart(2, '0')}`;
+            if ($('case-id')) $('case-id').textContent = `CASE//RXN-${String(currentQ + 1).padStart(3, '0')}`;
+            $('q-room-tag').textContent = roomCode;
+            $('eq-display').textContent = q.eq;
+            $('answer-tally').innerHTML = `<span>0</span>/${Object.keys(players).length} answered`;
+
+            const grid = $('choices-grid');
+            grid.innerHTML = q.choices.map((c, i) => `
+        <div class="choice-box" id="cbox-${i}" style="--cc:${CHOICE_COLORS[i]}">
+            <span class="choice-lbl">${'ABCD'[i]}</span>
+            <span class="choice-txt">${c}</span>
+        </div>`).join('');
+        }
+
+        /* ── Render pods on question screen sides ── */
+        function renderQuestionPods() {
+            const entries = Object.entries(players);
+            const half = Math.ceil(entries.length / 2);
+            const leftPods = entries.slice(0, half);
+            const rightPods = entries.slice(half);
+
+            function buildPod(uid, p, idx) {
+                const acid = AMINO_ACIDS[(p.aminoIdx ?? idx) % AMINO_ACIDS.length];
+                const isDead = (p.lives || 1) <= 0;
+                return `<div class="amino-pod pod-answering ${isDead ? 'ghost' : ''}" id="qpod-${uid}"
+                    style="--pod-color:${acid.color};--pod-dim:${acid.dim};--pod-glow:${acid.glow};animation-delay:${idx * 200}ms">
+                    <div class="pod-glass">
+                        <div class="pod-avatar">${generateAminoSVG(acid)}</div>
+                        <div class="pod-status-strip">${isDead ? 'GHOST' : 'CONDEMNED'}</div>
+                    </div>
+                    <div class="pod-footer">
+                        <div class="pod-acid-code">${acid.letter}</div>
+                        <div class="pod-player-name">${p.name}</div>
+                    </div>
+                </div>`;
+            }
+
+            $('q-pods-left').innerHTML = leftPods.map(([uid, p], i) => buildPod(uid, p, i)).join('');
+            $('q-pods-right').innerHTML = rightPods.map(([uid, p], i) => buildPod(uid, p, half + i)).join('');
+        }
+
+        /* ── Update pod states as answers come in ── */
+        function updateQuestionPodStates() {
+            Object.entries(players).forEach(([uid, p]) => {
+                const pod = document.getElementById(`qpod-${uid}`);
+                if (!pod) return;
+                if (p.answered) {
+                    pod.classList.remove('pod-answering');
+                    pod.classList.add('pod-submitted');
+                }
+            });
+        }
+
+        function updateTally() {
+            const total = Object.keys(players).length;
+            const answered = Object.values(players).filter(p => p.answered).length;
+            $('answer-tally').innerHTML = `<span>${answered}</span>/${total} answered`;
+            // Auto-reveal when everyone has answered
+            if (total > 0 && answered === total) {
+                clearInterval(timerInterval);
+                setTimeout(doReveal, 700);
+            }
+        }
+
+        function startCountdown() {
+            clearInterval(timerInterval);
+            const circ = 2 * Math.PI * 30; // ≈ 188.5 (matches 72px ring)
+            const arc = $('timer-arc');
+            const num = $('timer-num');
+            arc.style.stroke = 'var(--q1)';
+            num.style.color = '';
+
+            timerInterval = setInterval(() => {
+                const remaining = Math.max(0, timerEndTime - Date.now());
+                const secs = Math.ceil(remaining / 1000);
+                const progress = remaining / (TIMER_SEC * 1000);
+                num.textContent = secs;
+                arc.style.strokeDashoffset = circ * (1 - progress);
+                if (secs <= 5) { $('timer-num').classList.add('urgent'); } else { $('timer-num').classList.remove('urgent'); }
+
+                if (secs <= 5) { arc.style.stroke = 'var(--red)'; num.style.color = 'var(--red)'; }
+                if (remaining <= 0) { clearInterval(timerInterval); doReveal(); }
+            }, 100);
+        }
+
+        /* ══════════════════════════════════════════════════════════
+                               R E V E A L
+           ══════════════════════════════════════════════════════════ */
+        let revealDone = false;
+
+        async function doReveal() {
+            if (revealDone) return;
+            revealDone = true;
+
+            clearInterval(timerInterval);
+            // Stop watching for answers immediately — prevents playerListener from
+            // re-firing updateTally() (which would re-trigger doReveal) when player
+            // data is later updated during the Killing Room phase.
+            if (playerListener) {
+                roomRef.child('players').off('value', playerListener);
+                playerListener = null;
+            }
+            const q = questions[currentQ];
+            const upd = { state: 'reveal', correctAnswer: q.answer };
+
+            // Identify who got it right/wrong
+            const wrongUIDs = [];
+            const correctUIDs = [];
+
+            const timerStart = timerEndTime - TIMER_SEC * 1000;
+            Object.entries(players).forEach(([uid, p]) => {
+                const correct = p.answer === q.answer;
+                if (correct) {
+                    correctUIDs.push(uid);
+                    // Score: base 1000 + speed bonus
+                    const elapsed = Math.max(0, (p.answerTime || timerEndTime) - timerStart);
+                    const speedBonus = Math.floor((1 - elapsed / (TIMER_SEC * 1000)) * 500);
+                    const isDead = (p.lives || 1) <= 0;
+                    if (!isDead) {
+                        upd[`players/${uid}/score`] = (p.score || 0) + 1000 + speedBonus;
+                    } else {
+                        // Ghosts get reduced score
+                        upd[`players/${uid}/score`] = (p.score || 0) + Math.floor((1000 + speedBonus) * 0.25);
+                    }
+                } else {
+                    wrongUIDs.push(uid);
+                    // Don't deduct lives here — killing room handles death
+                }
+            });
+
+            await roomRef.update(upd);
+            players = (await roomRef.child('players').once('value')).val() || {};
+
+            // ── Update pod states to correct/wrong ──
+            Object.entries(players).forEach(([uid, p]) => {
+                const pod = document.getElementById(`qpod-${uid}`);
+                if (!pod) return;
+                pod.classList.remove('pod-answering', 'pod-submitted');
+                if (p.answer === q.answer) {
+                    pod.classList.add('pod-correct');
+                } else {
+                    pod.classList.add('pod-wrong');
+                }
+            });
+
+            // Wait a beat for pod state to be visible
+            await new Promise(r => setTimeout(r, 1500));
+
+            // ── Animate: correct pods slide off, wrong stay ──
+            correctUIDs.forEach(uid => {
+                const pod = document.getElementById(`qpod-${uid}`);
+                if (pod) pod.classList.add('pod-exit');
+            });
+
+            await new Promise(r => setTimeout(r, 900));
+
+            // ── Show reveal screen ──
+            showScreen('s-reveal');
+
+            // Highlight correct choice
+            const choiceIdx = questions[currentQ].choices.indexOf(q.answer);
+            for (let i = 0; i < 4; i++) {
+                const box = document.getElementById(`cbox-${i}`);
+                if (box) box.classList.add(i === choiceIdx ? 'revealed-correct' : 'revealed-wrong');
+            }
+
+            $('correct-box').textContent = q.answer;
+            $('hint-txt').textContent = q.hint;
+
+            // Build player results
+            const sorted = Object.entries(players).sort(([, a], [, b]) => b.score - a.score);
+            $('player-results').innerHTML = sorted.map(([uid, p], idx) => {
+                const correct = p.answer === q.answer;
+                const isDead = (p.lives || 1) <= 0;
+                const elapsed = Math.max(0, (p.answerTime || timerEndTime) - timerStart);
+                const speedBonus = correct ? Math.floor((1 - elapsed / (TIMER_SEC * 1000)) * 500) : 0;
+                const totalGain = correct ? (isDead ? Math.floor((1000 + speedBonus) * 0.25) : 1000 + speedBonus) : 0;
+                const delta = correct
+                    ? `+${totalGain.toLocaleString()}`
+                    : (isDead ? '☠ Already dead' : '→ Killing Room');
+                return `<div class="pr-card ${correct ? 'correct' : 'wrong'} ${isDead ? 'eliminated' : ''}" style="animation-delay:${idx * 60}ms">
+                    <div class="pr-name">${p.name}</div>
+                    <div class="pr-result">${correct ? '✓' : '✗'}</div>
+                    <div class="pr-delta">${delta}</div>
+                </div>`;
+            }).join('');
+
+            // ── Determine flow ──
+            const aliveWrong = wrongUIDs.filter(uid => (players[uid]?.lives || 1) > 0);
+            const allCorrect = aliveWrong.length === 0;
+
+            if (allCorrect) {
+                // No victims — same floor, next question
+                $('btn-next-safe').hidden = false;
+                $('btn-to-kr').hidden = true;
+            } else {
+                // Send wrong players to killing room
+                $('btn-to-kr').hidden = false;
+                $('btn-next-safe').hidden = true;
+            }
+
+            revealDone = false;
+        }
+
+        /* ── "No victims" → next question on same floor ── */
+        $('btn-next-safe').onclick = () => {
+            showScreen('s-no-victims');
+            roomRef.update({ state: 'leaderboard' }); // Notify players
+            setTimeout(() => {
+                currentQ++;
+                if (currentQ >= questions.length) endGame();
+                else pushQuestion();
+            }, 2000);
+        };
+
+        /* ── Wrong players → Killing Room ── */
+        $('btn-to-kr').onclick = () => {
+            triggerKillingRoom();
+        };
+
+        /* ══════════════════════════════════════════════════════════
+                           L E A D E R B O A R D
+           ══════════════════════════════════════════════════════════ */
+        function renderLeaderboard() {
+            roomRef.update({ state: 'leaderboard' });
+            showScreen('s-leaderboard');
+
+            $('elevator-floor').textContent =
+                `FLOOR ${String(currentQ + 1).padStart(2, '0')} // POST-ROUND DEBRIEF`;
+            $('elevator-progress').textContent =
+                `ROUND ${currentQ + 1} / ${questions.length} COMPLETE`;
+
+            const sorted = Object.entries(players).sort(([, a], [, b]) => b.score - a.score);
+            $('elevator-manifest').innerHTML = sorted.map(([uid, p], i) => {
+                const dead = (p.lives || 0) <= 0;
+                const acid = AMINO_ACIDS[(p.aminoIdx ?? i) % AMINO_ACIDS.length];
+                return `<div class="manifest-entry ${i === 0 ? 'first-entry' : ''} ${dead ? 'dead-entry' : ''}"
+                    style="--entry-color:${dead ? 'rgba(255,34,34,0.25)' : acid.color};animation-delay:${i * 60}ms">
+                <span class="me-rank">${i + 1}</span>
+                <div class="me-avatar">${acid.letter}</div>
+                <span class="me-name">${p.name}</span>
+                <span class="me-status">${dead ? '☠' : '◆'}</span>
+                <span class="me-score">${(p.score || 0).toLocaleString()}</span>
+            </div>`;
+            }).join('');
+
+            const isLast = currentQ >= questions.length - 1;
+            $('btn-next-q').textContent = isLast
+                ? 'SEE FINAL RESULTS →'
+                : `NEXT ROUND ${currentQ + 2} →`;
+        }
+
+        $('btn-next-q').onclick = () => {
+            currentQ++;
+            if (currentQ >= questions.length) endGame();
+            else pushQuestion();
+        };
+
+        /* ══════════════════════════════════════════════════════════
+           KILLING ROOMS — LUCK-BASED CHALLENGES
+           ══════════════════════════════════════════════════════════ */
+        const KILLING_ROOMS = [
+            { id: 'plinko-pegs', name: 'PLINKO OF DOOM', sub: 'GRAVITY DIVISION', flavor: 'One ball drops per condemned specimen.\nPhysics decides their fate.\nPoint buckets score. Death buckets eliminate.' },
+            { id: 'pick-a-cup', name: 'THE POISONED CHALICE', sub: 'TOXICOLOGY WING', flavor: 'Safe specimens secretly poison a cup.\nCondemned must choose one to drink.\nMost choose poorly.' },
+            { id: 'wheel-of-fate', name: 'WHEEL OF FATE', sub: 'PROBABILITY CHAMBER', flavor: 'The wheel spins once per condemned specimen.\nOnly 6% is survival.\nGravity has no mercy. The math is the mercy.' },
+            { id: 'passwords', name: 'BREACH PROTOCOL', sub: 'CRYPTOGRAPHY WING', flavor: 'Condemned specimens must choose a 4-letter password.\nSafe specimens attempt to crack them.\nAny password cracked — its owner is eliminated.' },
+            { id: 'dice-blackjack', name: 'DEAD MAN\'S HAND', sub: 'PROBABILITY WARD', flavor: 'Condemned roll dice repeatedly.\nExceed 21 — instant death.\nSurvivors with the lowest total still face the acid.' },
+            { id: 'lottery-scratch', name: 'INSTANT DEATH TICKET', sub: 'TOXICOLOGY LOTTERY', flavor: 'Each condemned specimen receives a scratch ticket.\nThree cells must be scratched.\nThree death zones are hidden among them.' },
+            { id: 'betting-pool', name: 'DEAD POOL', sub: 'FINANCIAL ELIMINATION', flavor: 'Safe specimens bet on who dies.\nCondemned specimens draw straws.\nCorrect bets earn bonus points. Losers lose everything.' },
+        ];
+
+        let activeKR = null;
+        let krTimerInterval = null;
+        let krPhase = 'intro';
+        let krAtRiskListener = null;
+        let krListeners = [];
+        let plinkoBalls = [];
+        let plinkoRafId = null;
+        let wheelRafId = null;
+
+        /* ── tiny particle burst helper ── */
+        function burstParticles(el, color, count = 12) {
+            const rect = el.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                const angle = (i / count) * Math.PI * 2;
+                const dist = 30 + Math.random() * 40;
+                p.style.cssText = `position:fixed;z-index:9999;width:6px;height:6px;border-radius:50%;
+                    background:${color};pointer-events:none;left:${cx}px;top:${cy}px;
+                    transition:transform 0.55s ease-out,opacity 0.55s ease-out;opacity:1;`;
+                document.body.appendChild(p);
+                requestAnimationFrame(() => {
+                    p.style.transform = `translate(${Math.cos(angle) * dist}px,${Math.sin(angle) * dist}px) scale(0)`;
+                    p.style.opacity = '0';
+                });
+                setTimeout(() => p.remove(), 600);
+            }
+        }
+
+        /* ── screen shake ── */
+        function shakeScreen() {
+            const s = $('s-killing-room');
+            s.classList.remove('kr-shake');
+            void s.offsetWidth;
+            s.classList.add('kr-shake');
+            setTimeout(() => s.classList.remove('kr-shake'), 500);
+        }
+
+        /* ── clean up all KR firebase listeners ── */
+        function cleanKRListeners() {
+            krListeners.forEach(ref => roomRef.child('players').off('value', ref));
+            krListeners = [];
+            if (krAtRiskListener) { roomRef.child('players').off('value', krAtRiskListener); krAtRiskListener = null; }
+        }
+
+        /* ── show instruction screen then call cb ── */
+        function showKRInstructions(room, cb) {
+            $('kr-intro-overlay').hidden = true;
+            $('kr-content').hidden = true;
+            $('kr-instructions').hidden = false;
+            $('kr-instr-title').textContent = room.name;
+            $('kr-instr-sub').textContent = room.sub;
+            $('kr-instr-body').textContent = room.flavor.replace(/\\n/g, '\n');
+            roomRef.update({ 'killingRoom/phase': 'instructions' });
+            $('btn-kr-start').onclick = () => {
+                $('kr-instructions').hidden = true;
+                $('kr-content').hidden = false;
+                cb();
+            };
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           TRIGGER — picks room, shows intro, then instructions
+           ══════════════════════════════════════════════════════════ */
+        function triggerKillingRoom() {
+            clearInterval(krTimerInterval);
+            cancelAnimationFrame(plinkoRafId);
+            cancelAnimationFrame(wheelRafId);
+            cleanKRListeners();
+
+            const room = KILLING_ROOMS[Math.floor(Math.random() * KILLING_ROOMS.length)];
+            const q = questions[currentQ];
+            const wrongUIDs = Object.entries(players).filter(([, p]) => p.answer !== q.answer && (p.lives || 1) > 0).map(([uid]) => uid);
+            const safeUIDs = Object.entries(players).filter(([, p]) => p.answer === q.answer || (p.lives || 1) <= 0).map(([uid]) => uid);
+
+            activeKR = { ...room, wrongUIDs, safeUIDs };
+            krPhase = 'intro';
+
+            showScreen('s-killing-room');
+            $('s-killing-room').dataset.room = room.id;
+            $('kr-room-name-display').textContent = room.name;
+            $('kr-room-subname').textContent = room.sub;
+            $('kr-flavor-text').textContent = room.flavor.replace(/\\n/g, '\n');
+            $('kr-intro-overlay').hidden = false;
+            $('kr-content').hidden = true;
+            $('kr-instructions').hidden = true;
+            $('btn-kr-reveal').hidden = true;
+            $('btn-kr-continue').hidden = true;
+
+            roomRef.update({
+                state: 'killing-room',
+                killingRoom: { type: room.id, roomId: room.id, phase: 'intro', wrongUIDs, safeUIDs }
+            });
+
+            setTimeout(() => showKRInstructions(room, () => startKRRoom(room.id)), 3500);
+        }
+
+        function startKRRoom(id) {
+            krPhase = id;
+            ({
+                'plinko-pegs': startKRPlinko, 'pick-a-cup': startKRCups,
+                'wheel-of-fate': startKRWheel, 'passwords': startKRPasswords,
+                'dice-blackjack': startKRDice, 'lottery-scratch': startKRLottery,
+                'betting-pool': startKRBetting
+            })[id]?.();
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           ROOM 1: PLINKO OF DOOM
+           ══════════════════════════════════════════════════════════ */
+        function startKRPlinko() {
+            $('kr-header-title').textContent = 'PLINKO OF DOOM';
+            $('kr-challenge-label').textContent = 'Watch the balls fall — Physics decides fate';
+            $('kr-challenge-content').textContent = '';
+            $('kr-options').innerHTML = '<canvas id="plinko-canvas" width="560" height="340" style="display:block;margin:0 auto;border-radius:4px;background:rgba(0,0,0,0.4)"></canvas>';
+            $('kr-response-grid').innerHTML = '';
+            $('btn-kr-reveal').hidden = true;
+
+            roomRef.update({ 'killingRoom/phase': 'plinko-drop' });
+
+            const canvas = document.getElementById('plinko-canvas');
+            const ctx = canvas.getContext('2d');
+            const W = 560, H = 340;
+
+            // Build pegs — 8 rows, alternating 6 and 7 pegs
+            const pegs = [];
+            const ROWS = 8, PEG_R = 5;
+            for (let row = 0; row < ROWS; row++) {
+                const cols = (row % 2 === 0) ? 7 : 6;
+                const xStep = W / (cols + 1);
+                const xOff = (row % 2 === 0) ? xStep : xStep * 1.5;
+                const y = 40 + row * 32;
+                for (let c = 0; c < cols; c++) {
+                    pegs.push({ x: xOff + c * xStep, y, r: PEG_R });
+                }
+            }
+
+            // 7 buckets at bottom — alternating death/points
+            const NUM_BUCKETS = 7;
+            const bucketW = W / NUM_BUCKETS;
+            const buckets = Array.from({ length: NUM_BUCKETS }, (_, i) => ({
+                x: i * bucketW,
+                w: bucketW,
+                death: i % 2 === 0,
+                label: i % 2 === 0 ? '☠ DEATH' : `+${(i + 1) * 100}`
+            }));
+
+            // One ball per condemned — drop them sequentially
+            const BALL_R = 8;
+            let ballIdx = 0;
+            const drops = activeKR.wrongUIDs.map(uid => ({
+                uid,
+                name: players[uid]?.name || '?',
+                x: W * (0.2 + Math.random() * 0.6),
+                y: -BALL_R,
+                vx: (Math.random() - 0.5) * 0.8,
+                vy: 0,
+                landed: false,
+                bucket: -1,
+                hitPegs: new WeakSet(),
+                trail: [],
+            }));
+
+            let activeBall = null;
+            let resultsList = [];
+            let framesSinceLand = 0;
+
+            function nextBall() {
+                if (ballIdx >= drops.length) return null;
+                const d = drops[ballIdx++];
+                d.x = W * (0.25 + Math.random() * 0.5);
+                d.y = -BALL_R;
+                d.vx = (Math.random() - 0.5) * 0.6;
+                d.vy = 0;
+                d.trail = [];
+                return d;
+            }
+            activeBall = nextBall();
+
+            function stepBall(b) {
+                if (b.landed) return;
+                b.trail.push({ x: b.x, y: b.y });
+                if (b.trail.length > 10) b.trail.shift();
+
+                b.vy += 0.28; // gravity
+                b.x += b.vx;
+                b.y += b.vy;
+
+                // Wall bounce
+                if (b.x - BALL_R < 2) { b.x = 2 + BALL_R; b.vx = Math.abs(b.vx) * 0.75; }
+                if (b.x + BALL_R > W - 2) { b.x = W - 2 - BALL_R; b.vx = -Math.abs(b.vx) * 0.75; }
+
+                // Peg collisions
+                for (const peg of pegs) {
+                    const dx = b.x - peg.x, dy = b.y - peg.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const minDist = BALL_R + peg.r + 1;
+                    if (dist < minDist && dist > 0.1) {
+                        const nx = dx / dist, ny = dy / dist;
+                        // Separate
+                        b.x = peg.x + nx * minDist;
+                        b.y = peg.y + ny * minDist;
+                        // Reflect velocity
+                        const dot = b.vx * nx + b.vy * ny;
+                        b.vx = (b.vx - 2 * dot * nx) * 0.6 + (Math.random() - 0.5) * 0.5;
+                        b.vy = (b.vy - 2 * dot * ny) * 0.6;
+                        if (b.vy < 0.5) b.vy = 0.5;
+                    }
+                }
+
+                // Landing
+                if (b.y + BALL_R >= H - 30) {
+                    const bucket = Math.floor(b.x / bucketW);
+                    b.bucket = Math.max(0, Math.min(NUM_BUCKETS - 1, bucket));
+                    b.landed = true;
+                    b.y = H - 30 - BALL_R;
+                    b.vx = 0; b.vy = 0;
+                }
+            }
+
+            function drawFrame() {
+                ctx.clearRect(0, 0, W, H);
+
+                // Draw rod pegs
+                for (const peg of pegs) {
+                    // Rod (vertical line under peg)
+                    ctx.beginPath();
+                    ctx.moveTo(peg.x, peg.y);
+                    ctx.lineTo(peg.x, peg.y + 12);
+                    ctx.strokeStyle = 'rgba(57,231,95,0.25)';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    // Peg circle
+                    ctx.beginPath();
+                    ctx.arc(peg.x, peg.y, peg.r, 0, Math.PI * 2);
+                    ctx.fillStyle = '#39e75f';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(57,231,95,0.5)';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+
+                // Buckets
+                for (let i = 0; i < buckets.length; i++) {
+                    const bkt = buckets[i];
+                    ctx.fillStyle = bkt.death ? 'rgba(255,34,34,0.18)' : 'rgba(57,231,95,0.12)';
+                    ctx.fillRect(bkt.x + 1, H - 30, bkt.w - 2, 30);
+                    ctx.strokeStyle = bkt.death ? 'rgba(255,34,34,0.4)' : 'rgba(57,231,95,0.3)';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(bkt.x + 1, H - 30, bkt.w - 2, 30);
+                    ctx.fillStyle = bkt.death ? '#ff4444' : '#39e75f';
+                    ctx.font = '9px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(bkt.label, bkt.x + bkt.w / 2, H - 12);
+                }
+
+                // Previous landed balls (as small dots with names)
+                for (const d of drops) {
+                    if (!d.landed || d === activeBall) continue;
+                    const bkt = buckets[d.bucket];
+                    ctx.beginPath();
+                    ctx.arc(bkt.x + bkt.w / 2, H - 30 - BALL_R, BALL_R * 0.6, 0, Math.PI * 2);
+                    ctx.fillStyle = bkt.death ? '#ff4444' : '#39e75f';
+                    ctx.fill();
+                }
+
+                // Active ball
+                if (activeBall) {
+                    // Trail
+                    for (let i = 0; i < activeBall.trail.length; i++) {
+                        const t = activeBall.trail[i];
+                        const alpha = i / activeBall.trail.length * 0.35;
+                        ctx.beginPath();
+                        ctx.arc(t.x, t.y, BALL_R * 0.5, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(255,201,77,${alpha})`;
+                        ctx.fill();
+                    }
+                    // Ball glow
+                    const grad = ctx.createRadialGradient(activeBall.x, activeBall.y, 0, activeBall.x, activeBall.y, BALL_R * 2.5);
+                    grad.addColorStop(0, 'rgba(255,201,77,0.4)');
+                    grad.addColorStop(1, 'transparent');
+                    ctx.beginPath();
+                    ctx.arc(activeBall.x, activeBall.y, BALL_R * 2.5, 0, Math.PI * 2);
+                    ctx.fillStyle = grad;
+                    ctx.fill();
+                    // Ball itself
+                    ctx.beginPath();
+                    ctx.arc(activeBall.x, activeBall.y, BALL_R, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ffc94d';
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 1.5;
+                    ctx.fill();
+                    ctx.stroke();
+                    // Name tag above ball
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 9px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(activeBall.name.toUpperCase().slice(0, 8), activeBall.x, activeBall.y - BALL_R - 3);
+                }
+            }
+
+            function loop() {
+                if (activeBall && !activeBall.landed) {
+                    stepBall(activeBall);
+                    drawFrame();
+                    plinkoRafId = requestAnimationFrame(loop);
+                } else if (activeBall && activeBall.landed) {
+                    framesSinceLand++;
+                    drawFrame();
+                    if (framesSinceLand < 40) {
+                        plinkoRafId = requestAnimationFrame(loop);
+                    } else {
+                        resultsList.push({ uid: activeBall.uid, bucket: activeBall.bucket, died: buckets[activeBall.bucket].death });
+                        framesSinceLand = 0;
+                        const next = nextBall();
+                        if (next) {
+                            activeBall = next;
+                            plinkoRafId = requestAnimationFrame(loop);
+                        } else {
+                            activeBall = null;
+                            drawFrame();
+                            finalizePlinko(resultsList, buckets);
+                        }
+                    }
+                }
+            }
+            plinkoRafId = requestAnimationFrame(loop);
+        }
+
+        function finalizePlinko(results, buckets) {
+            // Show result chips
+            let html = '';
+            results.forEach(r => {
+                const bkt = buckets[r.bucket];
+                html += `<div class="kr-response-chip ${r.died ? 'wrong' : 'correct'}">${players[r.uid]?.name || '?'} → ${bkt.label}</div>`;
+            });
+            $('kr-response-grid').innerHTML = html;
+            $('btn-kr-reveal').hidden = false;
+            $('btn-kr-reveal').textContent = 'APPLY RESULTS →';
+            $('btn-kr-reveal').onclick = () => applyKRResults(results.map(r => ({ uid: r.uid, died: r.died })));
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           ROOM 2: POISONED CHALICE
+           ══════════════════════════════════════════════════════════ */
+        function startKRCups() {
+            $('kr-header-title').textContent = 'THE POISONED CHALICE';
+            $('kr-challenge-label').textContent = 'Safe specimens are poisoning a cup…';
+            $('kr-challenge-content').textContent = '';
+
+            const NUM_CUPS = 6;
+            // pre-select which cup is poisoned (hidden)
+            const poisonIdx = Math.floor(Math.random() * NUM_CUPS);
+            activeKR.poisonIdx = poisonIdx;
+
+            $('kr-options').innerHTML = `
+                <div id="cups-host-wrap" style="display:flex;gap:12px;justify-content:center;padding:1rem;flex-wrap:wrap">
+                ${Array.from({ length: NUM_CUPS }, (_, i) => `
+                    <div class="kr-cup" id="hcup-${i}" data-idx="${i}">
+                        <div class="cup-body"></div>
+                        <div class="cup-base"></div>
+                        <div class="cup-label">${String.fromCharCode(65 + i)}</div>
+                    </div>`).join('')}
+                </div>`;
+
+            // Response chips for condemned
+            $('kr-response-grid').innerHTML = activeKR.wrongUIDs.map(uid =>
+                `<div class="kr-response-chip" id="krchip-${uid}">${players[uid]?.name || '?'}</div>`
+            ).join('');
+            $('btn-kr-reveal').hidden = true;
+
+            const safeTimerEnd = Date.now() + 12000;
+            roomRef.update({
+                'killingRoom/phase': 'cups-poison',
+                'killingRoom/timerEnd': safeTimerEnd,
+                'killingRoom/numCups': NUM_CUPS,
+                'killingRoom/poisonIdx': poisonIdx, // safe to store — players can't see this
+            });
+            startKRTimer(safeTimerEnd, 12000);
+
+            // After safe timer, move to condemned-choose
+            const fallback = setTimeout(() => startCupsChoose(NUM_CUPS), 13000);
+
+            const watcher = roomRef.child('players').on('value', snap => {
+                players = snap.val() || {};
+                const allSafeVoted = activeKR.safeUIDs.every(uid => players[uid]?.safeVote != null);
+                if (allSafeVoted && activeKR.safeUIDs.length > 0) {
+                    clearTimeout(fallback);
+                    roomRef.child('players').off('value', watcher);
+                    setTimeout(() => startCupsChoose(NUM_CUPS), 800);
+                }
+            });
+            krListeners.push(watcher);
+        }
+
+        function startCupsChoose(NUM_CUPS) {
+            clearInterval(krTimerInterval);
+            $('kr-challenge-label').textContent = 'Condemned — pick a cup to drink';
+            const chooseEnd = Date.now() + 12000;
+            roomRef.update({ 'killingRoom/phase': 'cups-choose', 'killingRoom/timerEnd': chooseEnd });
+            startKRTimer(chooseEnd, 12000);
+            $('btn-kr-reveal').hidden = false;
+
+            const watcher = roomRef.child('players').on('value', snap => {
+                players = snap.val() || {};
+                let count = 0;
+                activeKR.wrongUIDs.forEach(uid => {
+                    if (players[uid]?.krAnswer != null) {
+                        const chip = document.getElementById(`krchip-${uid}`);
+                        if (chip) chip.classList.add('answered');
+                        count++;
+                    }
+                });
+                if (count >= activeKR.wrongUIDs.length) {
+                    clearInterval(krTimerInterval);
+                    roomRef.child('players').off('value', watcher);
+                }
+            });
+            krListeners.push(watcher);
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           ROOM 3: WHEEL OF FATE
+           ══════════════════════════════════════════════════════════ */
+        function startKRWheel() {
+            $('kr-header-title').textContent = 'WHEEL OF FATE';
+            $('kr-challenge-label').textContent = 'Spinning for each condemned specimen…';
+            $('kr-challenge-content').textContent = '';
+            $('kr-options').innerHTML = '<canvas id="wheel-canvas" width="300" height="300" style="display:block;margin:0 auto"></canvas>';
+            $('kr-response-grid').innerHTML = activeKR.wrongUIDs.map(uid =>
+                `<div class="kr-response-chip" id="krchip-${uid}">${players[uid]?.name || '?'}</div>`
+            ).join('');
+            $('btn-kr-reveal').hidden = true;
+
+            // Pre-determine outcomes (6% survive per player)
+            const results = activeKR.wrongUIDs.map(uid => ({
+                uid, survived: Math.random() < 0.06
+            }));
+
+            roomRef.update({ 'killingRoom/phase': 'wheel-spin' });
+            spinWheelSequence(results, 0);
+        }
+
+        function drawWheel(ctx, angle) {
+            const cx = 150, cy = 150, r = 130;
+            // 94% death, 6% survive
+            const DEATH_ARC = Math.PI * 2 * 0.94;
+            const LIVE_ARC = Math.PI * 2 * 0.06;
+
+            ctx.clearRect(0, 0, 300, 300);
+
+            // outer ring glow
+            const grd = ctx.createRadialGradient(cx, cy, r - 20, cx, cy, r + 10);
+            grd.addColorStop(0, 'rgba(255,34,34,0.1)');
+            grd.addColorStop(1, 'transparent');
+            ctx.beginPath(); ctx.arc(cx, cy, r + 10, 0, Math.PI * 2);
+            ctx.fillStyle = grd; ctx.fill();
+
+            // Death sector
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.arc(cx, cy, r, angle, angle + DEATH_ARC);
+            ctx.closePath();
+            ctx.fillStyle = '#2a0505';
+            ctx.fill();
+            ctx.strokeStyle = '#ff2222';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Survival sector
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.arc(cx, cy, r, angle + DEATH_ARC, angle + DEATH_ARC + LIVE_ARC);
+            ctx.closePath();
+            ctx.fillStyle = '#0a2a0a';
+            ctx.fill();
+            ctx.strokeStyle = '#39e75f';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Sector labels
+            const deadMid = angle + DEATH_ARC / 2;
+            ctx.save();
+            ctx.translate(cx + Math.cos(deadMid) * r * 0.6, cy + Math.sin(deadMid) * r * 0.6);
+            ctx.rotate(deadMid + Math.PI / 2);
+            ctx.fillStyle = '#ff4444'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
+            ctx.fillText('☠ DEATH', 0, 0);
+            ctx.restore();
+
+            const liveMid = angle + DEATH_ARC + LIVE_ARC / 2;
+            ctx.save();
+            ctx.translate(cx + Math.cos(liveMid) * r * 0.72, cy + Math.sin(liveMid) * r * 0.72);
+            ctx.rotate(liveMid + Math.PI / 2);
+            ctx.fillStyle = '#39e75f'; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
+            ctx.fillText('LIVE', 0, 0);
+            ctx.restore();
+
+            // Rim segments (decorative ticks)
+            for (let i = 0; i < 36; i++) {
+                const a = angle + (i / 36) * Math.PI * 2;
+                ctx.beginPath();
+                ctx.moveTo(cx + Math.cos(a) * (r - 8), cy + Math.sin(a) * (r - 8));
+                ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+                ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // Hub
+            ctx.beginPath(); ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+            ctx.fillStyle = '#070c18'; ctx.fill();
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 2; ctx.stroke();
+
+            // Pointer at top
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - r - 14);
+            ctx.lineTo(cx - 8, cy - r + 4);
+            ctx.lineTo(cx + 8, cy - r + 4);
+            ctx.closePath();
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+        }
+
+        function spinWheelSequence(results, idx) {
+            if (idx >= results.length) {
+                // All done
+                setTimeout(() => {
+                    const res = results.map(r => ({ uid: r.uid, died: !r.survived }));
+                    let html = '';
+                    res.forEach(r => {
+                        html += `<div class="kr-response-chip ${r.died ? 'wrong' : 'correct'}">${players[r.uid]?.name || '?'} ${r.died ? '☠' : '✓'}</div>`;
+                    });
+                    $('kr-response-grid').innerHTML = html;
+                    $('btn-kr-reveal').hidden = false;
+                    $('btn-kr-reveal').textContent = 'APPLY RESULTS →';
+                    $('btn-kr-reveal').onclick = () => applyKRResults(res);
+                }, 500);
+                return;
+            }
+
+            const result = results[idx];
+            const canvas = document.getElementById('wheel-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            // Chip highlight
+            const chip = document.getElementById(`krchip-${result.uid}`);
+            if (chip) { chip.style.border = '1px solid #ffc94d'; chip.style.color = '#ffc94d'; }
+
+            // Determine landing angle such that pointer (top = -π/2) lands in correct sector
+            // death sector: 0 to 0.94*2π, live sector: 0.94*2π to 2π
+            // pointer at -π/2, we want to land: if death → anywhere in death zone; if live → live zone
+            const fullSpins = (4 + Math.floor(Math.random() * 4)) * Math.PI * 2;
+            const targetFraction = result.survived
+                ? (0.94 + Math.random() * 0.06) // land in live zone
+                : (Math.random() * 0.94); // land in death zone
+            const targetAngle = -Math.PI / 2 - targetFraction * Math.PI * 2;
+            const totalAngle = fullSpins + targetAngle;
+
+            let startTime = null;
+            const DURATION = 2800;
+            let startAngle = -Math.PI / 2;
+
+            function frame(ts) {
+                if (!startTime) startTime = ts;
+                const elapsed = ts - startTime;
+                const t = Math.min(elapsed / DURATION, 1);
+                // ease-out cubic
+                const ease = 1 - Math.pow(1 - t, 3);
+                const currentAngle = startAngle + totalAngle * ease;
+                drawWheel(ctx, currentAngle);
+
+                if (t < 1) {
+                    wheelRafId = requestAnimationFrame(frame);
+                } else {
+                    // Settled
+                    drawWheel(ctx, startAngle + totalAngle);
+                    if (chip) {
+                        chip.classList.add(result.survived ? 'correct' : 'wrong');
+                        chip.textContent = `${players[result.uid]?.name || '?'} ${result.survived ? '✓ SURVIVED' : '☠ DEAD'}`;
+                        chip.style.border = '';
+                        chip.style.color = '';
+                        if (!result.survived) shakeScreen();
+                    }
+                    setTimeout(() => spinWheelSequence(results, idx + 1), 1200);
+                }
+            }
+            drawWheel(ctx, startAngle);
+            setTimeout(() => { wheelRafId = requestAnimationFrame(frame); }, 400);
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           ROOM 4: BREACH PROTOCOL (PASSWORDS)
+           ══════════════════════════════════════════════════════════ */
+        function startKRPasswords() {
+            $('kr-header-title').textContent = 'BREACH PROTOCOL';
+            $('kr-challenge-label').textContent = 'Condemned are setting their passwords…';
+            $('kr-challenge-content').textContent = '';
+            $('kr-options').innerHTML = '<div id="pw-host-grid"></div>';
+            $('kr-response-grid').innerHTML = '';
+            $('btn-kr-reveal').hidden = true;
+
+            const writeEnd = Date.now() + 15000;
+            roomRef.update({ 'killingRoom/phase': 'pw-write', 'killingRoom/timerEnd': writeEnd });
+            startKRTimer(writeEnd, 15000);
+
+            const watcher = roomRef.child('players').on('value', snap => {
+                players = snap.val() || {};
+                let grid = '';
+                activeKR.wrongUIDs.forEach(uid => {
+                    const p = players[uid];
+                    const word = p?.krPwWord || null;
+                    grid += `<div class="pw-host-card ${word ? 'pw-set' : ''}">
+                        <span class="pw-host-name">${p?.name || '?'}</span>
+                        <span class="pw-host-word">${word ? '● ● ● ●' : '…typing'}</span>
+                    </div>`;
+                });
+                const el = document.getElementById('pw-host-grid');
+                if (el) el.innerHTML = grid;
+
+                const allSet = activeKR.wrongUIDs.every(uid => players[uid]?.krPwWord);
+                if (allSet) {
+                    clearInterval(krTimerInterval);
+                    roomRef.child('players').off('value', watcher);
+                    setTimeout(startKRPasswordsCrack, 800);
+                }
+            });
+            krListeners.push(watcher);
+            setTimeout(() => {
+                if (krPhase !== 'passwords') return;
+                roomRef.child('players').off('value', watcher);
+                startKRPasswordsCrack();
+            }, 16000);
+        }
+
+        function startKRPasswordsCrack() {
+            clearInterval(krTimerInterval);
+            $('kr-challenge-label').textContent = 'Safe specimens are cracking passwords…';
+
+            // Build hints — show one letter scrambled
+            const hints = {};
+            activeKR.wrongUIDs.forEach(uid => {
+                const word = (players[uid]?.krPwWord || '????').toUpperCase().padEnd(4, '?');
+                const revealIdx = Math.floor(Math.random() * 4);
+                hints[uid] = word.split('').map((ch, i) => i === revealIdx ? ch : '_').join(' ');
+            });
+
+            // Show password cards with hints for host
+            let grid = '';
+            activeKR.wrongUIDs.forEach(uid => {
+                grid += `<div class="pw-host-card pw-set" id="pwcrack-${uid}">
+                    <span class="pw-host-name">${players[uid]?.name || '?'}</span>
+                    <span class="pw-host-word" style="letter-spacing:0.25em">${hints[uid]}</span>
+                    <span class="pw-crack-status" id="pwcs-${uid}">—</span>
+                </div>`;
+            });
+            const el = document.getElementById('pw-host-grid');
+            if (el) el.innerHTML = grid;
+
+            const crackEnd = Date.now() + 20000;
+            roomRef.update({
+                'killingRoom/phase': 'pw-crack',
+                'killingRoom/timerEnd': crackEnd,
+                'killingRoom/pwHints': hints,
+            });
+            startKRTimer(crackEnd, 20000);
+            $('btn-kr-reveal').hidden = false;
+
+            // Watch for cracks
+            const watcher = roomRef.child('players').on('value', snap => {
+                players = snap.val() || {};
+                activeKR.wrongUIDs.forEach(uid => {
+                    const p = players[uid];
+                    const cracked = p?.krPwCracked;
+                    const el = document.getElementById(`pwcs-${uid}`);
+                    if (el) {
+                        if (cracked) {
+                            el.textContent = '☠ CRACKED';
+                            el.style.color = '#ff2222';
+                            const card = document.getElementById(`pwcrack-${uid}`);
+                            if (card) card.style.borderColor = '#ff2222';
+                        }
+                    }
+                });
+            });
+            krListeners.push(watcher);
+
+            $('btn-kr-reveal').onclick = () => {
+                clearInterval(krTimerInterval);
+                cleanKRListeners();
+                const results = activeKR.wrongUIDs.map(uid => ({
+                    uid, died: !!players[uid]?.krPwCracked
+                }));
+                applyKRResults(results);
+            };
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           ROOM 5: DEAD MAN'S HAND (DICE BLACKJACK)
+           ══════════════════════════════════════════════════════════ */
+        function startKRDice() {
+            $('kr-header-title').textContent = "DEAD MAN'S HAND";
+            $('kr-challenge-label').textContent = 'Roll dice — stay under 22. Lowest total loses.';
+            $('kr-challenge-content').textContent = '';
+            $('kr-options').innerHTML = '<div id="dice-host-grid"></div>';
+            $('kr-response-grid').innerHTML = '';
+            $('btn-kr-reveal').hidden = false;
+            $('btn-kr-reveal').textContent = 'REVEAL & APPLY →';
+
+            const rollEnd = Date.now() + 25000;
+            roomRef.update({ 'killingRoom/phase': 'dice-roll', 'killingRoom/timerEnd': rollEnd });
+            startKRTimer(rollEnd, 25000);
+
+            const watcher = roomRef.child('players').on('value', snap => {
+                players = snap.val() || {};
+                let grid = '';
+                activeKR.wrongUIDs.forEach(uid => {
+                    const p = players[uid];
+                    const total = p?.bjTotal || 0;
+                    const done = p?.bjDone || false;
+                    const bust = total > 21;
+                    grid += `<div class="dice-host-card ${bust ? 'bust' : ''}${done && !bust ? ' held' : ''}">
+                        <span class="dice-host-name">${p?.name || '?'}</span>
+                        <span class="dice-host-total" style="color:${bust ? '#ff2222' : done ? '#ffc94d' : '#39e75f'}">${total}</span>
+                        <span class="dice-host-status">${bust ? '☠ BUST' : done ? 'HELD' : 'rolling…'}</span>
+                    </div>`;
+                });
+                const el = document.getElementById('dice-host-grid');
+                if (el) el.innerHTML = grid;
+            });
+            krListeners.push(watcher);
+
+            $('btn-kr-reveal').onclick = () => {
+                clearInterval(krTimerInterval);
+                cleanKRListeners();
+                players = Object.fromEntries(
+                    Object.entries(players)
+                );
+                // Collect results
+                const totals = activeKR.wrongUIDs.map(uid => ({
+                    uid,
+                    total: players[uid]?.bjTotal || 0,
+                    bust: (players[uid]?.bjTotal || 0) > 21
+                }));
+                const alive = totals.filter(t => !t.bust);
+                const minScore = alive.length > 0 ? Math.min(...alive.map(t => t.total)) : Infinity;
+                const results = totals.map(t => ({
+                    uid: t.uid,
+                    died: t.bust || (alive.length > 0 && t.total === minScore)
+                }));
+                let html = '';
+                results.forEach(r => {
+                    const total = totals.find(t => t.uid === r.uid)?.total || 0;
+                    html += `<div class="kr-response-chip ${r.died ? 'wrong' : 'correct'}">${players[r.uid]?.name || '?'} → ${total} ${r.died ? '☠' : '✓'}</div>`;
+                });
+                $('kr-response-grid').innerHTML = html;
+                applyKRResults(results);
+            };
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           ROOM 6: INSTANT DEATH TICKET (LOTTERY)
+           ══════════════════════════════════════════════════════════ */
+        function startKRLottery() {
+            $('kr-header-title').textContent = 'INSTANT DEATH TICKET';
+            $('kr-challenge-label').textContent = 'Scratch 3 cells. Pray.';
+            $('kr-challenge-content').textContent = '';
+
+            // Pre-generate grids (hidden from players)
+            const GRID_SIZE = 9, DEATH_COUNT = 3;
+            const grids = {};
+            activeKR.wrongUIDs.forEach(uid => {
+                const vals = Array(GRID_SIZE).fill(null).map((_, i) => {
+                    if (i < DEATH_COUNT) return 'death';
+                    return [100, 150, 200, 200, 250, 300][i - DEATH_COUNT] || 100;
+                });
+                // Shuffle
+                for (let i = vals.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [vals[i], vals[j]] = [vals[j], vals[i]];
+                }
+                grids[uid] = vals;
+            });
+            activeKR.grids = grids;
+
+            $('kr-options').innerHTML = '<div id="lottery-host-grid"></div>';
+            $('kr-response-grid').innerHTML = '';
+            $('btn-kr-reveal').hidden = false;
+            $('btn-kr-reveal').textContent = 'REVEAL RESULTS →';
+
+            const scratchEnd = Date.now() + 20000;
+            roomRef.update({
+                'killingRoom/phase': 'lottery-scratch',
+                'killingRoom/timerEnd': scratchEnd,
+                'killingRoom/grids': grids
+            });
+            startKRTimer(scratchEnd, 20000);
+
+            const watcher = roomRef.child('players').on('value', snap => {
+                players = snap.val() || {};
+                let html = '';
+                activeKR.wrongUIDs.forEach(uid => {
+                    const scratched = players[uid]?.scratched || [];
+                    const count = scratched.filter(Boolean).length;
+                    html += `<div class="lottery-host-card">
+                        <span>${players[uid]?.name || '?'}</span>
+                        <span style="color:#ffc94d">${count}/3 scratched</span>
+                    </div>`;
+                });
+                const el = document.getElementById('lottery-host-grid');
+                if (el) el.innerHTML = html;
+            });
+            krListeners.push(watcher);
+
+            $('btn-kr-reveal').onclick = () => {
+                clearInterval(krTimerInterval);
+                cleanKRListeners();
+                const results = activeKR.wrongUIDs.map(uid => {
+                    const scratched = players[uid]?.scratched || [];
+                    const grid = grids[uid] || [];
+                    let died = false;
+                    let gain = 0;
+                    scratched.forEach((s, i) => {
+                        if (!s) return;
+                        if (grid[i] === 'death') died = true;
+                        else gain += grid[i] || 0;
+                    });
+                    return { uid, died, gain };
+                });
+                let html = '';
+                results.forEach(r => {
+                    html += `<div class="kr-response-chip ${r.died ? 'wrong' : 'correct'}">${players[r.uid]?.name || '?'} ${r.died ? '☠ DEATH' : '+' + r.gain + 'pts'}</div>`;
+                });
+                $('kr-response-grid').innerHTML = html;
+                // Apply bonus points for survivors
+                const upd = {};
+                results.filter(r => !r.died).forEach(r => {
+                    upd[`players/${r.uid}/score`] = (players[r.uid]?.score || 0) + r.gain;
+                });
+                roomRef.update(upd);
+                applyKRResults(results);
+            };
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           ROOM 7: DEAD POOL (BETTING)
+           ══════════════════════════════════════════════════════════ */
+        function startKRBetting() {
+            $('kr-header-title').textContent = 'DEAD POOL';
+            $('kr-challenge-label').textContent = 'Safe specimens bet on who dies. Condemned draw straws.';
+            $('kr-challenge-content').textContent = '';
+            $('kr-options').innerHTML = '<div id="bet-host-chips"></div>';
+
+            // Show condemned for host
+            $('kr-response-grid').innerHTML = activeKR.safeUIDs.map(uid =>
+                `<div class="kr-response-chip" id="krchip-${uid}">${players[uid]?.name || '?'}</div>`
+            ).join('');
+            $('btn-kr-reveal').hidden = false;
+            $('btn-kr-reveal').textContent = 'DRAW STRAWS & REVEAL →';
+
+            const betEnd = Date.now() + 15000;
+            roomRef.update({
+                'killingRoom/phase': 'betting',
+                'killingRoom/timerEnd': betEnd,
+                'killingRoom/condemned': activeKR.wrongUIDs.map(uid => ({ uid, name: players[uid]?.name || '?' }))
+            });
+            startKRTimer(betEnd, 15000);
+
+            const watcher = roomRef.child('players').on('value', snap => {
+                players = snap.val() || {};
+                let html = '';
+                activeKR.safeUIDs.forEach(uid => {
+                    const bet = players[uid]?.krBet;
+                    const chip = document.getElementById(`krchip-${uid}`);
+                    if (chip) {
+                        if (bet) {
+                            chip.classList.add('answered');
+                            const target = players[bet]?.name || bet;
+                            chip.textContent = `${players[uid]?.name || '?'} → ${target}`;
+                        }
+                    }
+                });
+            });
+            krListeners.push(watcher);
+
+            $('btn-kr-reveal').onclick = () => {
+                clearInterval(krTimerInterval);
+                cleanKRListeners();
+                // Random 50/50 per condemned player
+                const diedUIDs = new Set(
+                    activeKR.wrongUIDs.filter(() => Math.random() < 0.5)
+                );
+                // Ensure at least one dies
+                if (diedUIDs.size === 0 && activeKR.wrongUIDs.length > 0) {
+                    diedUIDs.add(activeKR.wrongUIDs[Math.floor(Math.random() * activeKR.wrongUIDs.length)]);
+                }
+
+                // Award bonus points for correct bets
+                const upd = {};
+                activeKR.safeUIDs.forEach(uid => {
+                    const bet = players[uid]?.krBet;
+                    if (bet && diedUIDs.has(bet)) {
+                        upd[`players/${uid}/score`] = (players[uid]?.score || 0) + 500;
+                    }
+                });
+                roomRef.update(upd);
+
+                const results = activeKR.wrongUIDs.map(uid => ({ uid, died: diedUIDs.has(uid) }));
+                let html = '';
+                results.forEach(r => {
+                    html += `<div class="kr-response-chip ${r.died ? 'wrong' : 'correct'}">${players[r.uid]?.name || '?'} ${r.died ? '☠ DEAD' : '✓ SURVIVED'}</div>`;
+                });
+                $('kr-options').innerHTML = html;
+                applyKRResults(results);
+            };
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           CUPS REVEAL (host side)
+           ══════════════════════════════════════════════════════════ */
+        function revealCups() {
+            clearInterval(krTimerInterval);
+            cleanKRListeners();
+            const poisonIdx = activeKR.poisonIdx;
+            // Highlight cups on host
+            document.querySelectorAll('.kr-cup').forEach((cup, i) => {
+                if (i === poisonIdx) {
+                    cup.classList.add('cup-poisoned');
+                }
+            });
+            const results = activeKR.wrongUIDs.map(uid => {
+                const choice = players[uid]?.krAnswer ?? Math.floor(Math.random() * 6);
+                const died = (parseInt(choice) === poisonIdx);
+                return { uid, died };
+            });
+            let html = '';
+            results.forEach(r => {
+                const choice = players[r.uid]?.krAnswer ?? '?';
+                html += `<div class="kr-response-chip ${r.died ? 'wrong' : 'correct'}">${players[r.uid]?.name || '?'} → Cup ${String.fromCharCode(65 + parseInt(choice))} ${r.died ? '☠' : '✓'}</div>`;
+            });
+            $('kr-response-grid').innerHTML = html;
+            roomRef.update({ 'killingRoom/phase': 'reveal', 'killingRoom/poisonIdx': poisonIdx });
+            applyKRResults(results);
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           APPLY RESULTS — common death / score logic
+           ══════════════════════════════════════════════════════════ */
+        function applyKRResults(results) {
+            $('btn-kr-reveal').hidden = true;
+            const upd = {};
+            results.forEach(({ uid, died }) => {
+                if (died) {
+                    upd[`players/${uid}/lives`] = 0;
+                    triggerDeathAnimation(uid);
+                    shakeScreen();
+                }
+            });
+            roomRef.update(upd);
+            roomRef.update({ 'killingRoom/phase': 'reveal' });
+            setTimeout(async () => {
+                players = (await roomRef.child('players').once('value')).val() || {};
+                $('btn-kr-continue').hidden = false;
+            }, 1200);
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           KR TIMER + SHARED HELPERS
+           ══════════════════════════════════════════════════════════ */
+        function startKRTimer(timerEnd, durationMs) {
+            clearInterval(krTimerInterval);
+            const circ = 188.5;
+            const arc = $('kr-timer-arc');
+            const num = $('kr-timer-num');
+            krTimerInterval = setInterval(() => {
+                const rem = Math.max(0, timerEnd - Date.now());
+                const secs = Math.ceil(rem / 1000);
+                num.textContent = secs;
+                arc.style.strokeDashoffset = circ * (1 - rem / durationMs);
+                if (secs <= 5) { arc.style.stroke = 'var(--scp-r)'; num.style.color = 'var(--scp-r)'; }
+                else { arc.style.stroke = 'var(--scp-r)'; num.style.color = 'var(--scp-r)'; }
+                if (rem <= 0) clearInterval(krTimerInterval);
+            }, 100);
+        }
+
+        $('btn-kr-continue').onclick = () => { renderLeaderboard(); };
+        $('btn-kr-reveal').onclick = () => {
+            // Default: reveal cups (only cups uses the static reveal btn)
+            if (activeKR?.id === 'pick-a-cup') revealCups();
+        };
+
+
+        /* ══════════════════════════════════════════════════════════
+                             E N D   G A M E
+           ══════════════════════════════════════════════════════════ */
+        async function endGame() {
+            await roomRef.update({ state: 'ended' });
+            showScreen('s-ended');
+
+            const sorted = Object.values(players).sort((a, b) => b.score - a.score);
+            const winner = sorted[0];
+            $('winner-name').textContent = winner?.name || '???';
+            $('winner-score').textContent = `${(winner?.score || 0).toLocaleString()} pts`;
+            $('final-list').innerHTML = sorted.map((p, i) => `
+        <div class="final-entry">
+            <span class="fe-rank">${i + 1}</span>
+            <span class="fe-name">${p.name}${p.lives <= 0 ? ' ☠' : ''}</span>
+            <span class="fe-score">${(p.score || 0).toLocaleString()}</span>
+        </div>`).join('');
+        }
+
+        $('btn-again').onclick = () => { location.reload(); };
+    </script>
+
+</body>
+
+</html>

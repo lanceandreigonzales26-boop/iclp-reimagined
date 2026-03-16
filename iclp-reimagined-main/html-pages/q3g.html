@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Q3 Game — Concentration Challenge · ICLP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="../css-pages/games.css"/>
+    <style>
+        .formula-hint{
+            display:inline-block;
+            font-family:'Courier New',monospace;font-size:0.8rem;
+            background:var(--bg-card-2);border:1px solid var(--border-accent);
+            color:var(--accent);padding:0.3rem 0.7rem;border-radius:6px;
+            margin-bottom:1rem;
+        }
+        .problem-box{
+            background:var(--bg-card-2);border:1px solid var(--border);
+            border-radius:8px;padding:1.2rem 1.4rem;
+            margin-bottom:1.25rem;
+        }
+        .problem-type{
+            font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;
+            color:var(--accent);margin-bottom:0.5rem;
+        }
+        .problem-text{
+            font-size:0.95rem;color:var(--text);font-weight:400;line-height:1.6;
+        }
+        .problem-text strong{color:var(--accent)}
+    </style>
+</head>
+<body data-q="3">
+<canvas id="bg-canvas"></canvas>
+
+<nav id="gnav">
+    <div class="gnav-inner">
+        <a href="quarter3.html" class="gnav-back">
+            <svg viewBox="0 0 16 16"><polyline points="10,3 5,8 10,13"/></svg>
+            Q3 Notes
+        </a>
+        <span class="gnav-sep">/</span>
+        <span class="gnav-badge">Q3</span>
+        <span class="gnav-name">Concentration Challenge</span>
+    </div>
+</nav>
+
+<div id="game-root">
+<div class="game-wrap">
+
+    <div class="game-header">
+        <p class="eyebrow">Quarter 3 · Mini-Game</p>
+        <h1>Concentration Challenge</h1>
+        <p>Solve each concentration problem and select the correct answer.</p>
+    </div>
+
+    <div class="hud">
+        <div class="hud-stat">
+            <span class="hud-val" id="score-val">0</span>
+            <span class="hud-label">Score</span>
+        </div>
+        <div class="progress-bar-wrap">
+            <div class="progress-bar-track">
+                <div class="progress-bar-fill" id="prog-bar" style="width:0%"></div>
+            </div>
+        </div>
+        <div class="hud-stat">
+            <span class="hud-val" id="q-count">1<span style="font-size:1rem;color:var(--text-muted)">/10</span></span>
+            <span class="hud-label">Problem</span>
+        </div>
+    </div>
+
+    <div class="q-card-game" id="game-card">
+        <p class="qnum" id="qnum-label">Problem 1 of 10</p>
+        <div id="formula-hint-wrap"></div>
+        <div class="problem-box">
+            <p class="problem-type" id="prob-type"></p>
+            <p class="problem-text" id="prob-text"></p>
+        </div>
+        <p class="question-text" id="prob-question"></p>
+        <div class="choices" id="choices-wrap"></div>
+        <div class="feedback" id="feedback"></div>
+        <button class="btn-next" id="btn-next">Next →</button>
+    </div>
+
+    <div class="results" id="results">
+        <div class="results-score" id="final-score"></div>
+        <p class="results-label">out of 10 correct</p>
+        <p class="results-msg" id="results-msg"></p>
+        <div class="results-actions">
+            <button class="btn-restart" id="btn-restart">Play Again</button>
+            <a href="quarter3.html" class="btn-back-results">Back to Notes</a>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<script>
+(function(){
+    const c=document.getElementById('bg-canvas');if(!c)return;
+    const x=c.getContext('2d');let W,H,pts;
+    class P{constructor(){this.reset(true)}reset(i=false){this.x=Math.random()*W;this.y=i?Math.random()*H:H+10;this.r=Math.random()*1.2+.3;this.vx=(Math.random()-.5)*.25;this.vy=-(Math.random()*.3+.08);this.a=Math.random()*.45+.12;this.col=Math.random()>.5}
+    update(){this.x+=this.vx;this.y+=this.vy;if(this.y<-10)this.reset()}
+    draw(){x.beginPath();x.arc(this.x,this.y,this.r,0,Math.PI*2);x.fillStyle=this.col?'rgba(167,139,250,1)':'#fff';x.globalAlpha=this.a;x.fill();x.globalAlpha=1}}
+    function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}
+    function init(){resize();pts=Array.from({length:Math.floor(W*H/10000)},()=>new P())}
+    function loop(){x.clearRect(0,0,W,H);pts.forEach(p=>{p.update();p.draw()});requestAnimationFrame(loop)}
+    window.addEventListener('resize',init);init();loop();
+})();
+
+const QUESTIONS = [
+    {
+        type:'Molarity',formula:'M = n / V',
+        text:'<strong>58.5 g of NaCl</strong> (molar mass = 58.5 g/mol) is dissolved to make <strong>500 mL</strong> of solution.',
+        question:'What is the molarity of this solution?',
+        answer:'2.00 M',choices:['1.00 M','2.00 M','0.50 M','4.00 M'],
+        hint:'Moles NaCl = 58.5 ÷ 58.5 = 1.00 mol. M = 1.00 mol ÷ 0.500 L = 2.00 M.'
+    },
+    {
+        type:'Molarity',formula:'M = n / V',
+        text:'A solution contains <strong>0.25 mol</strong> of glucose dissolved in <strong>250 mL</strong> of solution.',
+        question:'What is the molarity?',
+        answer:'1.00 M',choices:['0.25 M','0.50 M','1.00 M','2.00 M'],
+        hint:'M = 0.25 mol ÷ 0.250 L = 1.00 M.'
+    },
+    {
+        type:'Molality',formula:'m = n / kg(solvent)',
+        text:'<strong>2.0 mol</strong> of KCl is dissolved in <strong>500 g</strong> of water.',
+        question:'What is the molality?',
+        answer:'4.0 m',choices:['1.0 m','2.0 m','4.0 m','8.0 m'],
+        hint:'m = 2.0 mol ÷ 0.500 kg = 4.0 m. Note: molality uses kg of solvent, not solution.'
+    },
+    {
+        type:'Molality',formula:'m = n / kg(solvent)',
+        text:'<strong>180 g of glucose</strong> (molar mass = 180 g/mol) is dissolved in <strong>1.00 kg</strong> of water.',
+        question:'What is the molality of the solution?',
+        answer:'1.00 m',choices:['0.50 m','1.00 m','1.80 m','2.00 m'],
+        hint:'Moles glucose = 180 ÷ 180 = 1.00 mol. m = 1.00 mol ÷ 1.00 kg = 1.00 m.'
+    },
+    {
+        type:'Mass Percent',formula:'% = (mₛₒₗᵤₜₑ / mₛₒₗᵤₜᵢₒₙ) × 100',
+        text:'<strong>15 g of NaCl</strong> is dissolved in <strong>85 g of water</strong>.',
+        question:'What is the mass percent of NaCl?',
+        answer:'15%',choices:['8.5%','15%','17.6%','20%'],
+        hint:'Mass of solution = 15 + 85 = 100 g. % = (15 / 100) × 100 = 15%.'
+    },
+    {
+        type:'Mass Percent',formula:'% = (mₛₒₗᵤₜₑ / mₛₒₗᵤₜᵢₒₙ) × 100',
+        text:'<strong>25 g of sugar</strong> is dissolved in <strong>225 g of water</strong>.',
+        question:'What is the mass percent of the solution?',
+        answer:'10%',choices:['10%','11.1%','15%','25%'],
+        hint:'Total solution = 25 + 225 = 250 g. % = (25 / 250) × 100 = 10%.'
+    },
+    {
+        type:'Dilution',formula:'M₁V₁ = M₂V₂',
+        text:'A <strong>5.0 M HCl</strong> solution is diluted from <strong>100 mL</strong> to <strong>500 mL</strong>.',
+        question:'What is the new concentration?',
+        answer:'1.0 M',choices:['0.5 M','1.0 M','2.5 M','5.0 M'],
+        hint:'M₂ = (5.0 × 100) / 500 = 500 / 500 = 1.0 M.'
+    },
+    {
+        type:'Dilution',formula:'M₁V₁ = M₂V₂',
+        text:'You need to prepare <strong>200 mL</strong> of a <strong>0.50 M</strong> NaOH solution from a <strong>2.0 M</strong> stock solution.',
+        question:'What volume of the stock solution is required?',
+        answer:'50 mL',choices:['25 mL','50 mL','100 mL','200 mL'],
+        hint:'V₁ = (M₂ × V₂) / M₁ = (0.50 × 200) / 2.0 = 100 / 2.0 = 50 mL.'
+    },
+    {
+        type:'% Composition of Compound',formula:'% = (n × Mₑₗ / Mₘₒₗ) × 100',
+        text:'Water (H₂O) has a molar mass of <strong>18.02 g/mol</strong>. Hydrogen has a molar mass of <strong>1.008 g/mol</strong>.',
+        question:'What is the percent composition of hydrogen in water?',
+        answer:'11.2%',choices:['5.6%','11.2%','22.4%','88.8%'],
+        hint:'H contributes 2 × 1.008 = 2.016 g/mol. % H = (2.016 / 18.02) × 100 ≈ 11.2%.'
+    },
+    {
+        type:'Molarity — Solving for Moles',formula:'n = M × V',
+        text:'You have <strong>250 mL</strong> of a <strong>0.80 M</strong> glucose solution.',
+        question:'How many moles of glucose are present?',
+        answer:'0.20 mol',choices:['0.10 mol','0.20 mol','0.40 mol','0.80 mol'],
+        hint:'n = M × V = 0.80 mol/L × 0.250 L = 0.20 mol.'
+    },
+];
+
+let qs, qi, score;
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+
+function startGame(){
+    qs=shuffle(QUESTIONS);qi=0;score=0;
+    document.getElementById('results').classList.remove('show');
+    document.getElementById('game-card').style.display='';
+    renderQ();
+}
+
+function renderQ(){
+    const q=qs[qi];
+    document.getElementById('qnum-label').textContent=`Problem ${qi+1} of 10`;
+    document.getElementById('q-count').innerHTML=`${qi+1}<span style="font-size:1rem;color:var(--text-muted)">/10</span>`;
+    document.getElementById('score-val').textContent=score;
+    document.getElementById('prog-bar').style.width=`${(qi/10)*100}%`;
+    document.getElementById('prob-type').textContent=q.type;
+    document.getElementById('prob-text').innerHTML=q.text;
+    document.getElementById('prob-question').textContent=q.question;
+
+    // formula hint
+    const fhw=document.getElementById('formula-hint-wrap');
+    fhw.innerHTML=`<div class="formula-hint">${q.formula}</div>`;
+
+    const fb=document.getElementById('feedback');
+    fb.className='feedback';fb.textContent='';
+
+    const btn=document.getElementById('btn-next');
+    btn.className='btn-next';
+
+    const wrap=document.getElementById('choices-wrap');
+    wrap.innerHTML='';
+    const opts=shuffle(q.choices);
+    opts.forEach(opt=>{
+        const b=document.createElement('button');
+        b.className='choice-btn';b.textContent=opt;
+        b.onclick=()=>handleChoice(b,opt,q);
+        wrap.appendChild(b);
+    });
+}
+
+function handleChoice(btn,chosen,q){
+    document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
+    const correct=chosen===q.answer;
+    const fb=document.getElementById('feedback');
+    if(correct){
+        btn.classList.add('correct');score++;
+        fb.className='feedback correct show';
+        fb.innerHTML=`<strong>Correct!</strong> ${q.hint}`;
+    } else {
+        btn.classList.add('wrong');
+        fb.className='feedback wrong show';
+        fb.innerHTML=`<strong>Not quite.</strong> The answer is <strong>${q.answer}</strong>. ${q.hint}`;
+        document.querySelectorAll('.choice-btn').forEach(b=>{if(b.textContent===q.answer)b.classList.add('correct');});
+    }
+    const next=document.getElementById('btn-next');
+    next.className='btn-next show';
+    next.textContent=qi<9?'Next Problem →':'See Results';
+}
+
+document.getElementById('btn-next').onclick=()=>{qi++;if(qi>=10){showResults();return}renderQ()};
+document.getElementById('btn-restart').onclick=startGame;
+
+function showResults(){
+    document.getElementById('game-card').style.display='none';
+    document.getElementById('results').classList.add('show');
+    document.getElementById('final-score').textContent=score;
+    document.getElementById('prog-bar').style.width='100%';
+    document.getElementById('score-val').textContent=score;
+    const msgs=[[0,3,'Review the formulas and try again — you\'ll get there!'],[4,6,'Good effort! Go over the worked examples.'],[7,9,'Strong work! You have a good grasp of concentration.'],[10,10,'Perfect score! A concentration master.']];
+    const m=msgs.find(([lo,hi])=>score>=lo&&score<=hi);
+    document.getElementById('results-msg').textContent=m?m[2]:'';
+}
+
+startGame();
+</script>
+</body>
+</html>

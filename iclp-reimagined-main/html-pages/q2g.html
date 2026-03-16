@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Q2 Game — Equation Balancer · ICLP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&family=Montserrat:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../css-pages/games.css" />
+    <style>
+        .eq-label {
+            font-size: 0.68rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 0.6rem;
+        }
+
+        .eq-hint {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-style: italic;
+            text-align: center;
+            margin-top: 0.75rem;
+        }
+
+        .coeff-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px
+        }
+
+        .coeff-lbl {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            text-transform: uppercase
+        }
+
+        .attempts-wrap {
+            display: flex;
+            justify-content: center;
+            gap: 0.35rem;
+            margin-top: 0.5rem;
+        }
+
+        .attempt-pip {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+            border: 1px solid var(--border-accent);
+        }
+
+        .attempt-pip.used {
+            background: var(--q2)
+        }
+
+        .attempt-pip.fail {
+            background: #f87171
+        }
+
+        /* btn-next needs extra top margin in this game */
+        #btn-next {
+            margin-top: 0.75rem
+        }
+    </style>
+</head>
+
+<body data-q="2">
+    <canvas id="bg-canvas"></canvas>
+
+    <nav id="gnav">
+        <div class="gnav-inner">
+            <a href="quarter2.html" class="gnav-back">
+                <svg viewBox="0 0 16 16">
+                    <polyline points="10,3 5,8 10,13" />
+                </svg>
+                Q2 Notes
+            </a>
+            <span class="gnav-sep">/</span>
+            <span class="gnav-badge">Q2</span>
+            <span class="gnav-name">Equation Balancer</span>
+        </div>
+    </nav>
+
+    <div id="game-root">
+        <div class="game-wrap">
+
+            <div class="game-header">
+                <p class="eyebrow">Quarter 2 · Mini-Game</p>
+                <h1>Equation Balancer</h1>
+                <p>Enter the correct coefficients to balance each equation. You have 3 attempts per equation.</p>
+            </div>
+
+            <div class="hud">
+                <div class="hud-stat">
+                    <span class="hud-val" id="score-val">0</span>
+                    <span class="hud-label">Score</span>
+                </div>
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" id="prog-bar" style="width:0%"></div>
+                    </div>
+                </div>
+                <div class="hud-stat">
+                    <span class="hud-val" id="q-count">1<span
+                            style="font-size:1rem;color:var(--text-muted)">/8</span></span>
+                    <span class="hud-label">Equation</span>
+                </div>
+            </div>
+
+            <div class="q-card-game" id="game-card">
+                <p class="qnum" id="qnum-label">Equation 1 of 8</p>
+                <p class="eq-label">Balance this equation — enter coefficients in the boxes below</p>
+
+                <div class="balance-eq" id="balance-eq"></div>
+
+                <div class="attempts-wrap" id="attempts-wrap"></div>
+                <p class="eq-hint" id="eq-hint"></p>
+
+                <div class="feedback" id="feedback"></div>
+                <!-- BUG FIX: removed conflicting "show" class + inline display:none; use className toggling like other games -->
+                <button class="btn-check" id="btn-check">Check Balance</button>
+                <button class="btn-next" id="btn-next">Next Equation →</button>
+            </div>
+
+            <div class="results" id="results">
+                <div class="results-score" id="final-score"></div>
+                <p class="results-label">out of 8 equations</p>
+                <p class="results-msg" id="results-msg"></p>
+                <div class="results-actions">
+                    <button class="btn-restart" id="btn-restart">Play Again</button>
+                    <a href="quarter2.html" class="btn-back-results">Back to Notes</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        /* ── CANVAS ── */
+        (function () {
+            const c = document.getElementById('bg-canvas'); if (!c) return;
+            const x = c.getContext('2d'); let W, H, pts;
+            class P {
+                constructor() { this.reset(true) } reset(i = false) { this.x = Math.random() * W; this.y = i ? Math.random() * H : H + 10; this.r = Math.random() * 1.2 + .3; this.vx = (Math.random() - .5) * .25; this.vy = -(Math.random() * .3 + .08); this.a = Math.random() * .45 + .12; this.col = Math.random() > .5 }
+                update() { this.x += this.vx; this.y += this.vy; if (this.y < -10) this.reset() }
+                draw() { x.beginPath(); x.arc(this.x, this.y, this.r, 0, Math.PI * 2); x.fillStyle = this.col ? 'rgba(255,201,77,1)' : '#fff'; x.globalAlpha = this.a; x.fill(); x.globalAlpha = 1 }
+            }
+            function resize() { W = c.width = window.innerWidth; H = c.height = window.innerHeight }
+            function init() { resize(); pts = Array.from({ length: Math.floor(W * H / 10000) }, () => new P()) }
+            function loop() { x.clearRect(0, 0, W, H); pts.forEach(p => { p.update(); p.draw() }); requestAnimationFrame(loop) }
+            window.addEventListener('resize', init); init(); loop();
+        })();
+
+        const EQUATIONS = [
+            {
+                hint: 'Balance hydrogen first, then oxygen.',
+                parts: [
+                    { f: 'H₂', c: 2, input: true }, { plus: true }, { f: 'O₂', c: 1, input: true }, { arrow: true }, { f: 'H₂O', c: 2, input: true }
+                ]
+            },
+            {
+                hint: 'Start with Fe on the right (2 atoms), then count oxygen.',
+                parts: [
+                    { f: 'Fe', c: 4, input: true }, { plus: true }, { f: 'O₂', c: 3, input: true }, { arrow: true }, { f: 'Fe₂O₃', c: 2, input: true }
+                ]
+            },
+            {
+                hint: 'Hydrogen peroxide decomposes into water and oxygen.',
+                parts: [
+                    { f: 'H₂O₂', c: 2, input: true }, { arrow: true }, { f: 'H₂O', c: 2, input: true }, { plus: true }, { f: 'O₂', c: 1, input: true }
+                ]
+            },
+            {
+                hint: 'KClO₃ breaks down — count the chlorine and oxygen separately.',
+                parts: [
+                    { f: 'KClO₃', c: 2, input: true }, { arrow: true }, { f: 'KCl', c: 2, input: true }, { plus: true }, { f: 'O₂', c: 3, input: true }
+                ]
+            },
+            {
+                hint: 'Sodium reacts with water — balance Na first.',
+                parts: [
+                    { f: 'Na', c: 2, input: true }, { plus: true }, { f: 'H₂O', c: 2, input: true }, { arrow: true }, { f: 'NaOH', c: 2, input: true }, { plus: true }, { f: 'H₂', c: 1, input: true }
+                ]
+            },
+            {
+                hint: 'Propane combustion — use C first, then H, then O.',
+                parts: [
+                    { f: 'C₃H₈', c: 1, input: true }, { plus: true }, { f: 'O₂', c: 5, input: true }, { arrow: true }, { f: 'CO₂', c: 3, input: true }, { plus: true }, { f: 'H₂O', c: 4, input: true }
+                ]
+            },
+            {
+                hint: 'Aluminium and oxygen — balance Al first (2 on right side).',
+                parts: [
+                    { f: 'Al', c: 4, input: true }, { plus: true }, { f: 'O₂', c: 3, input: true }, { arrow: true }, { f: 'Al₂O₃', c: 2, input: true }
+                ]
+            },
+            {
+                hint: 'Magnesium burns in air to form magnesium oxide.',
+                parts: [
+                    { f: 'Mg', c: 2, input: true }, { plus: true }, { f: 'O₂', c: 1, input: true }, { arrow: true }, { f: 'MgO', c: 2, input: true }
+                ]
+            },
+        ];
+
+        let eqs, qi, score, attempts;
+
+        function shuffle(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[b[i], b[j]] = [b[j], b[i]] } return b }
+
+        function startGame() {
+            eqs = shuffle(EQUATIONS); qi = 0; score = 0;
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('game-card').style.display = '';
+            renderEq();
+        }
+
+        function renderEq() {
+            const eq = eqs[qi];
+            attempts = 3;
+            document.getElementById('qnum-label').textContent = `Equation ${qi + 1} of 8`;
+            document.getElementById('q-count').innerHTML = `${qi + 1}<span style="font-size:1rem;color:var(--text-muted)">/8</span>`;
+            document.getElementById('score-val').textContent = score;
+            document.getElementById('prog-bar').style.width = `${(qi / 8) * 100}%`;
+            document.getElementById('eq-hint').textContent = '';
+
+            const fb = document.getElementById('feedback');
+            fb.className = 'feedback'; fb.textContent = '';
+
+            // btn-check: clear any inline display:none set after previous answer
+            const btnC = document.getElementById('btn-check');
+            btnC.style.display = ''; btnC.disabled = false; btnC.textContent = 'Check Balance';
+
+            // BUG FIX: btn-next — use className toggling (consistent with q1g, q3g, q4g)
+            // games.css already sets .btn-next { display:none } and .btn-next.show { display:block }
+            document.getElementById('btn-next').className = 'btn-next';
+
+            // render attempts pips
+            const aw = document.getElementById('attempts-wrap');
+            aw.innerHTML = '';
+            for (let i = 0; i < 3; i++) { const p = document.createElement('span'); p.className = 'attempt-pip'; p.id = `pip-${i}`; aw.appendChild(p) }
+
+            // render equation
+            const wrap = document.getElementById('balance-eq');
+            wrap.innerHTML = '';
+            eq.parts.forEach((part, i) => {
+                if (part.plus) {
+                    const s = document.createElement('span'); s.className = 'eq-plus'; s.textContent = '+'; wrap.appendChild(s);
+                } else if (part.arrow) {
+                    const s = document.createElement('span'); s.className = 'eq-arrow'; s.textContent = '→'; wrap.appendChild(s);
+                } else {
+                    const w = document.createElement('div'); w.className = 'coeff-wrap';
+                    const inp = document.createElement('input');
+                    inp.type = 'number'; inp.min = '1'; inp.max = '20'; inp.className = 'coeff-input';
+                    inp.id = `coeff-${i}`; inp.placeholder = '?';
+                    inp.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-check').click() });
+                    const lbl = document.createElement('span'); lbl.className = 'coeff-lbl'; lbl.textContent = part.f;
+                    w.appendChild(inp); w.appendChild(lbl);
+                    wrap.appendChild(w);
+                }
+            });
+        }
+
+        document.getElementById('btn-check').onclick = () => {
+            const eq = eqs[qi];
+            let allCorrect = true;
+            let allFilled = true;
+
+            eq.parts.forEach((part, i) => {
+                if (!part.input) return;
+                const inp = document.getElementById(`coeff-${i}`);
+                if (!inp) return;
+                const val = parseInt(inp.value);
+                if (isNaN(val) || val < 1) { allFilled = false; return }
+                if (val === part.c) { inp.classList.remove('wrong'); inp.classList.add('correct') }
+                else { inp.classList.remove('correct'); inp.classList.add('wrong'); allCorrect = false }
+            });
+
+            if (!allFilled) {
+                const fb = document.getElementById('feedback');
+                fb.className = 'feedback wrong show';
+                fb.innerHTML = '<strong>Fill in all boxes first.</strong> Enter a coefficient for every compound.';
+                document.getElementById('game-card').classList.add('shake');
+                setTimeout(() => document.getElementById('game-card').classList.remove('shake'), 400);
+                return;
+            }
+
+            // mark attempt pip
+            const usedPip = document.getElementById(`pip-${3 - attempts}`);
+            if (usedPip) { usedPip.classList.add(allCorrect ? 'used' : 'fail') }
+            attempts--;
+
+            const fb = document.getElementById('feedback');
+
+            if (allCorrect) {
+                score++;
+                fb.className = 'feedback correct show';
+                fb.innerHTML = '<strong>Balanced!</strong> All atom counts match on both sides.';
+                // BUG FIX: hide check / show next using className, not inline style
+                document.getElementById('btn-check').style.display = 'none';
+                const btnN = document.getElementById('btn-next');
+                btnN.className = 'btn-next show';
+                btnN.textContent = qi < 7 ? 'Next Equation →' : 'See Results';
+
+            } else if (attempts <= 0) {
+                // BUG FIX: build correct equation string with → and without leading "1"
+                const eqStr = eq.parts.map(part => {
+                    if (part.plus) return '+';
+                    if (part.arrow) return '→';
+                    return (part.c === 1 ? '' : part.c) + part.f;
+                }).join(' ');
+
+                // fill in correct values and highlight inputs
+                eq.parts.forEach((part, i) => {
+                    if (!part.input) return;
+                    const inp = document.getElementById(`coeff-${i}`);
+                    if (inp) { inp.value = part.c; inp.classList.remove('wrong'); inp.classList.add('correct') }
+                });
+
+                fb.className = 'feedback wrong show';
+                fb.innerHTML = `<strong>Out of attempts.</strong> Correct equation: <span style="font-family:'Courier New',monospace;color:#fff">${eqStr}</span>`;
+
+                document.getElementById('btn-check').style.display = 'none';
+                const btnN = document.getElementById('btn-next');
+                btnN.className = 'btn-next show';
+                btnN.textContent = qi < 7 ? 'Next Equation →' : 'See Results';
+
+            } else {
+                fb.className = 'feedback wrong show';
+                fb.innerHTML = `<strong>Not balanced yet.</strong> ${attempts} attempt${attempts !== 1 ? 's' : ''} remaining. Check your coefficients and try again.`;
+                document.getElementById('eq-hint').textContent = eq.hint;
+            }
+        };
+
+        document.getElementById('btn-next').onclick = () => {
+            qi++;
+            if (qi >= 8) { showResults(); return }
+            renderEq();
+        };
+
+        document.getElementById('btn-restart').onclick = startGame;
+
+        function showResults() {
+            document.getElementById('game-card').style.display = 'none';
+            document.getElementById('results').classList.add('show');
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('prog-bar').style.width = '100%';
+            document.getElementById('score-val').textContent = score;
+            const msgs = [
+                [0, 2, 'Keep practicing — balancing takes repetition!'],
+                [3, 5, 'Decent start! Review the worked examples and try again.'],
+                [6, 7, 'Good work! You\'re getting the hang of balancing.'],
+                [8, 8, 'Perfect! Every equation balanced correctly.']
+            ];
+            const m = msgs.find(([lo, hi]) => score >= lo && score <= hi);
+            document.getElementById('results-msg').textContent = m ? m[2] : '';
+        }
+
+        startGame();
+    </script>
+</body>
+
+</html>
