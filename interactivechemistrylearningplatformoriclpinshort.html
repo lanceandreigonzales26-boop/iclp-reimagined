@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ICLP — Interactive Chemistry Learning Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="iclp.css" />
+</head>
+
+<body>
+
+    <!-- ── CANVAS BACKGROUND ── -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- ── NAV ── -->
+    <nav id="navbar">
+        <div class="nav-inner">
+            <a href="#hero" class="nav-logo">
+                <span class="logo-bracket">[</span>ICLP<span class="logo-bracket">]</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#quarters">Quarters</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ── HERO ── -->
+    <section id="hero">
+        <div class="hero-inner">
+            <p class="hero-eyebrow">Advanced Chemistry · S.Y. 2025–2026</p>
+            <h1 class="hero-title">
+                Interactive<br />
+                <span class="hero-accent">Chemistry</span><br />
+                Learning Platform
+            </h1>
+            <p class="hero-sub">
+                A student-built web platform that transforms four quarters of advanced<br />
+                chemistry into interactive games, 3D models, and visual guides.
+            </p>
+            <a href="#quarters" class="btn-primary">Explore Quarters</a>
+        </div>
+        <div class="hero-molecule" aria-hidden="true">
+            <svg viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- bonds -->
+                <line x1="150" y1="150" x2="80" y2="80" stroke="#00d4ff" stroke-width="2" stroke-dasharray="4 4"
+                    opacity="0.5" />
+                <line x1="150" y1="150" x2="220" y2="80" stroke="#00d4ff" stroke-width="2" stroke-dasharray="4 4"
+                    opacity="0.5" />
+                <line x1="150" y1="150" x2="80" y2="220" stroke="#00d4ff" stroke-width="2" stroke-dasharray="4 4"
+                    opacity="0.5" />
+                <line x1="150" y1="150" x2="220" y2="220" stroke="#00d4ff" stroke-width="2" stroke-dasharray="4 4"
+                    opacity="0.5" />
+                <line x1="150" y1="150" x2="150" y2="50" stroke="#ffc94d" stroke-width="2" stroke-dasharray="4 4"
+                    opacity="0.5" />
+                <line x1="150" y1="150" x2="150" y2="250" stroke="#ffc94d" stroke-width="2" stroke-dasharray="4 4"
+                    opacity="0.5" />
+                <!-- atoms -->
+                <circle cx="150" cy="150" r="22" fill="#0a0f1e" stroke="#00d4ff" stroke-width="2" />
+                <text x="150" y="156" text-anchor="middle" fill="#00d4ff" font-family="Syne" font-size="14"
+                    font-weight="700">C</text>
+                <circle cx="80" cy="80" r="14" fill="#0a0f1e" stroke="#00d4ff" stroke-width="1.5" opacity="0.8" />
+                <text x="80" y="85" text-anchor="middle" fill="#00d4ff" font-family="Syne" font-size="11">H</text>
+                <circle cx="220" cy="80" r="14" fill="#0a0f1e" stroke="#00d4ff" stroke-width="1.5" opacity="0.8" />
+                <text x="220" y="85" text-anchor="middle" fill="#00d4ff" font-family="Syne" font-size="11">H</text>
+                <circle cx="80" cy="220" r="14" fill="#0a0f1e" stroke="#00d4ff" stroke-width="1.5" opacity="0.8" />
+                <text x="80" y="225" text-anchor="middle" fill="#00d4ff" font-family="Syne" font-size="11">O</text>
+                <circle cx="220" cy="220" r="14" fill="#0a0f1e" stroke="#00d4ff" stroke-width="1.5" opacity="0.8" />
+                <text x="220" y="225" text-anchor="middle" fill="#00d4ff" font-family="Syne" font-size="11">N</text>
+                <circle cx="150" cy="50" r="14" fill="#0a0f1e" stroke="#ffc94d" stroke-width="1.5" opacity="0.8" />
+                <text x="150" y="55" text-anchor="middle" fill="#ffc94d" font-family="Syne" font-size="11">H</text>
+                <circle cx="150" cy="250" r="14" fill="#0a0f1e" stroke="#ffc94d" stroke-width="1.5" opacity="0.8" />
+                <text x="150" y="255" text-anchor="middle" fill="#ffc94d" font-family="Syne" font-size="11">H</text>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ── QUARTERS ── -->
+    <section id="quarters">
+        <div class="section-inner">
+            <p class="section-label">Curriculum Coverage</p>
+            <h2 class="section-title">Four Quarters, <span class="accent">One Platform</span></h2>
+            <p class="section-desc">
+                Select a quarter below. Each section will feature topic summaries,
+                interactive mini-games, and 3D molecular models.
+            </p>
+
+            <div class="quarters-grid">
+
+                <!-- Q1 -->
+                <div class="q-card" data-q="1">
+                    <div class="q-card-header">
+                        <span class="q-badge">Q1</span>
+                        <div class="q-status" style="color:var(--q1)">
+                            <span class="status-dot" style="background:var(--q1);animation:none;opacity:1"></span>
+                            <span>Available</span>
+                        </div>
+                    </div>
+                    <h3 class="q-title">Chemical Reactions<br />&amp; Elements</h3>
+                    <ul class="q-topics">
+                        <li>Types of Chemical Reactions</li>
+                        <li>Elements — Properties &amp; Classification</li>
+                        <li>Overview of the Periodic Table</li>
+                    </ul>
+                    <div class="q-features">
+                        <div class="q-feature-pill">
+                            <svg class="pill-icon" viewBox="0 0 16 16">
+                                <rect x="2" y="11" width="12" height="2" rx="1" />
+                                <path d="M5 11V5l3-3 3 3v6" />
+                            </svg>
+                            Mini-Game
+                        </div>
+                        <div class="q-feature-pill">
+                            <svg class="pill-icon" viewBox="0 0 16 16">
+                                <rect x="2" y="2" width="12" height="12" rx="2" stroke-width="1.5" fill="none" />
+                                <line x1="5" y1="6" x2="11" y2="6" />
+                                <line x1="5" y1="9" x2="9" y2="9" />
+                            </svg>
+                            Summary
+                        </div>
+                    </div>
+                    <a href="quarter1.html" class="q-btn" style="display:block;text-align:center;text-decoration:none;background:rgba(0,212,255,0.1);border-color:var(--q1);color:var(--q1);cursor:pointer;padding:0.7rem;border-radius:6px;font-size:0.82rem;font-weight:500">Open Quarter 1 →</a>
+                </div>
+
+                <!-- Q2 -->
+                <div class="q-card" data-q="2">
+                    <div class="q-card-header">
+                        <span class="q-badge">Q2</span>
+                        <div class="q-status" style="color:var(--q2)">
+                            <span class="status-dot" style="background:var(--q2);animation:none;opacity:1"></span>
+                            <span>Available</span>
+                        </div>
+                    </div>
+                    <h3 class="q-title">Balancing Chemical<br />Equations</h3>
+                    <ul class="q-topics">
+                        <li>Law of Conservation of Mass</li>
+                        <li>Balancing Techniques</li>
+                        <li>Equation Classification</li>
+                    </ul>
+                    <div class="q-features">
+                        <div class="q-feature-pill">
+                            <svg class="pill-icon" viewBox="0 0 16 16">
+                                <rect x="2" y="11" width="12" height="2" rx="1" />
+                                <path d="M5 11V5l3-3 3 3v6" />
+                            </svg>
+                            Balancer Game
+                        </div>
+                        <div class="q-feature-pill">
+                            <svg class="pill-icon" viewBox="0 0 16 16">
+                                <rect x="2" y="2" width="12" height="12" rx="2" stroke-width="1.5" fill="none" />
+                                <line x1="5" y1="6" x2="11" y2="6" />
+                                <line x1="5" y1="9" x2="9" y2="9" />
+                            </svg>
+                            Summary
+                        </div>
+                    </div>
+                    <a href="quarter2.html" class="q-btn" style="display:block;text-align:center;text-decoration:none;background:rgba(255,201,77,0.1);border-color:var(--q2);color:var(--q2);cursor:pointer;padding:0.7rem;border-radius:6px;font-size:0.82rem;font-weight:500">Open Quarter 2 →</a>
+                </div>
+
+                <!-- Q3 -->
+                <div class="q-card" data-q="3">
+                    <div class="q-card-header">
+                        <span class="q-badge">Q3</span>
+                        <div class="q-status" style="color:var(--q3)">
+                            <span class="status-dot" style="background:var(--q3);animation:none;opacity:1"></span>
+                            <span>Available</span>
+                        </div>
+                    </div>
+                    <h3 class="q-title">Concentration<br />Concepts</h3>
+                    <ul class="q-topics">
+                        <li>Percentage Composition</li>
+                        <li>Molality &amp; Molarity</li>
+                        <li>Related Concentration Concepts</li>
+                    </ul>
+                    <div class="q-features">
+                        <div class="q-feature-pill">
+                            <svg class="pill-icon" viewBox="0 0 16 16">
+                                <rect x="2" y="11" width="12" height="2" rx="1" />
+                                <path d="M5 11V5l3-3 3 3v6" />
+                            </svg>
+                            Calculator Game
+                        </div>
+                        <div class="q-feature-pill">
+                            <svg class="pill-icon" viewBox="0 0 16 16">
+                                <rect x="2" y="2" width="12" height="12" rx="2" stroke-width="1.5" fill="none" />
+                                <line x1="5" y1="6" x2="11" y2="6" />
+                                <line x1="5" y1="9" x2="9" y2="9" />
+                            </svg>
+                            Summary
+                        </div>
+                    </div>
+                    <a href="quarter3.html" class="q-btn" style="display:block;text-align:center;text-decoration:none;background:rgba(167,139,250,0.1);border-color:var(--q3);color:var(--q3);cursor:pointer;padding:0.7rem;border-radius:6px;font-size:0.82rem;font-weight:500">Open Quarter 3 →</a>
+                </div>
+
+                <!-- Q4 -->
+                <div class="q-card" data-q="4">
+                    <div class="q-card-header">
+                        <span class="q-badge">Q4</span>
+                        <div class="q-status" style="color:var(--q4)">
+                            <span class="status-dot" style="background:var(--q4);animation:none;opacity:1"></span>
+                            <span>Available</span>
+                        </div>
+                    </div>
+                    <h3 class="q-title">Oxidation-Reduction<br />(Redox) Reactions</h3>
+                    <ul class="q-topics">
+                        <li>Oxidation States</li>
+                        <li>Identifying Redox Reactions</li>
+                        <li>Half-Reaction Method</li>
+                    </ul>
+                    <div class="q-features">
+                        <div class="q-feature-pill">
+                            <svg class="pill-icon" viewBox="0 0 16 16">
+                                <rect x="2" y="11" width="12" height="2" rx="1" />
+                                <path d="M5 11V5l3-3 3 3v6" />
+                            </svg>
+                            Redox Quiz
+                        </div>
+                        <div class="q-feature-pill">
+                            <svg class="pill-icon" viewBox="0 0 16 16">
+                                <rect x="2" y="2" width="12" height="12" rx="2" stroke-width="1.5" fill="none" />
+                                <line x1="5" y1="6" x2="11" y2="6" />
+                                <line x1="5" y1="9" x2="9" y2="9" />
+                            </svg>
+                            Summary
+                        </div>
+                    </div>
+                    <a href="quarter4.html" class="q-btn" style="display:block;text-align:center;text-decoration:none;background:rgba(248,113,113,0.1);border-color:var(--q4);color:var(--q4);cursor:pointer;padding:0.7rem;border-radius:6px;font-size:0.82rem;font-weight:500">Open Quarter 4 →</a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ── ABOUT ── -->
+    <section id="about">
+        <div class="section-inner about-inner">
+            <div class="about-text">
+                <p class="section-label">About This Project</p>
+                <h2 class="section-title">Built by students,<br /><span class="accent">for students.</span></h2>
+                <p class="about-body">
+                    The Interactive Chemistry Learning Platform is a student-led initiative
+                    developed for Advanced Chemistry under Ms. Lorraine A. Voloso. It combines
+                    topic summaries, interactive browser-based mini-games, and Tinkercad 3D
+                    molecular models to turn passive review into active exploration.
+                </p>
+                <p class="about-body">
+                    The platform covers all four quarters of the curriculum and is designed to
+                    remain a useful study resource long after the school year concludes.
+                </p>
+            </div>
+            <div class="about-team">
+                <p class="team-label">Group Members</p>
+                <ul class="team-list">
+                    <li>
+                        <span class="team-name">Mark James Patnon</span>
+                        <span class="team-role">Lead Developer · Project Coordinator</span>
+                    </li>
+                    <li>
+                        <span class="team-name">Hans Gabriel Maco</span>
+                        <span class="team-role">Game Design &amp; Development - "make me code" </span>
+                    </li>
+                    <li>
+                        <span class="team-name">Sancho Mikhail Diaz</span>
+                        <span class="team-role">Content Writing · Curriculum Alignment</span>
+                    </li>
+                    <li>
+                        <span class="team-name">Josiah Noel Fabrigas</span>
+                        <span class="team-role">Research &amp; Quality Assurance</span>
+                    </li>
+                    <li>
+                        <span class="team-name">Jemwell Boton</span>
+                        <span class="team-role">3D Modeling · Visual Design</span>
+                    </li>
+                    <li>
+                        <span class="team-name">Lance Andrei Gonzales</span>
+                        <span class="team-role">WildCard · Tinkerer</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer id="footer">
+        <div class="footer-inner">
+            <span class="footer-logo"><span class="logo-bracket">[</span>ICLP<span class="logo-bracket">]</span></span>
+            <p class="footer-copy">
+                Interactive Chemistry Learning Platform &nbsp;·&nbsp; Advanced Chemistry &nbsp;·&nbsp; March 2026
+            </p>
+        </div>
+    </footer>
+
+    <script src="iclp.js"></script>
+</body>
+
+</html>

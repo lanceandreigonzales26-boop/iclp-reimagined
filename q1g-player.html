@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Q1 · Reaction Rumble — Player · ICLP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+    --bg:#070c18;--bg-card:#0d1526;--bg-card-2:#111d33;
+    --text:#dce8f0;--text-muted:#7a9ab5;
+    --border:rgba(255,255,255,0.08);
+    --q1:#00d4ff;--q2:#ffc94d;--q3:#a78bfa;--q4:#f87171;
+    --green:#4ade80;--red:#f87171;
+    --font-h:'Syne',sans-serif;--font-b:'DM Sans',sans-serif;
+    --r:14px;
+}
+html{height:100%;-webkit-tap-highlight-color:transparent}
+body{
+    background:var(--bg);color:var(--text);
+    font-family:var(--font-b);font-weight:400;
+    height:100%;overflow:hidden;
+    display:flex;flex-direction:column;
+}
+
+/* ── SCREENS ── */
+.screen{
+    position:fixed;inset:0;z-index:10;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+}
+.screen[hidden]{display:none}
+
+/* ── SHARED ── */
+.eyebrow{font-size:0.65rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--q1);margin-bottom:0.4rem}
+.card{background:var(--bg-card);border:1px solid rgba(0,212,255,0.12);border-radius:var(--r);padding:1.5rem}
+.btn-main{
+    width:100%;padding:1rem;border-radius:10px;
+    background:var(--q1);color:var(--bg);
+    font-family:var(--font-h);font-weight:800;font-size:1rem;letter-spacing:0.06em;text-transform:uppercase;
+    border:none;cursor:pointer;
+    box-shadow:0 0 24px rgba(0,212,255,0.3);
+    transition:opacity 0.15s,transform 0.12s;
+    -webkit-appearance:none;
+}
+.btn-main:active{opacity:0.82;transform:scale(0.97)}
+.btn-main:disabled{opacity:0.3;cursor:not-allowed;box-shadow:none}
+
+/* ─────────────────── STATUS BAR ─────────────────── */
+.status-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0.75rem 1.25rem;
+    background:rgba(7,12,24,0.92);
+    border-bottom:1px solid rgba(0,212,255,0.1);
+    backdrop-filter:blur(10px);
+    flex-shrink:0;
+    min-height:56px;
+}
+.sb-name{font-family:var(--font-h);font-size:0.9rem;font-weight:700;color:var(--text)}
+.sb-hearts{font-size:1rem;letter-spacing:0.1em}
+.heart-alive{color:var(--red)}
+.heart-dead{color:#1e2d3d}
+.sb-score{font-family:var(--font-h);font-size:0.9rem;font-weight:800;color:var(--q1)}
+
+/* ─────────────────── JOIN ─────────────────── */
+#s-join{justify-content:center;align-items:center;padding:1.5rem}
+.join-card{width:100%;max-width:420px}
+.join-title{font-family:var(--font-h);font-size:2rem;font-weight:800;color:#fff;margin-bottom:0.25rem}
+.join-subtitle{color:var(--text-muted);font-size:0.88rem;font-weight:300;margin-bottom:1.75rem}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem}
+.field input{
+    width:100%;padding:0.85rem 1rem;
+    background:var(--bg-card-2);border:1px solid rgba(0,212,255,0.18);border-radius:10px;
+    color:#fff;font-family:var(--font-h);font-size:1.2rem;font-weight:700;
+    letter-spacing:0.15em;text-transform:uppercase;
+    outline:none;-webkit-appearance:none;
+    transition:border-color 0.2s,box-shadow 0.2s;
+}
+.field input:focus{border-color:var(--q1);box-shadow:0 0 16px rgba(0,212,255,0.2)}
+.field input.name-input{text-transform:none;font-size:1rem;letter-spacing:0.02em}
+.join-err{font-size:0.8rem;color:var(--red);margin-bottom:0.75rem;min-height:1.2em}
+.join-note{font-size:0.75rem;color:var(--text-muted);text-align:center;margin-top:1rem;font-weight:300}
+
+/* ─────────────────── LOBBY ─────────────────── */
+#s-lobby{justify-content:center;align-items:center;padding:1.5rem;text-align:center}
+.lobby-icon{font-size:3rem;margin-bottom:1rem;animation:spin 4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lobby-title{font-family:var(--font-h);font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:0.5rem}
+.lobby-sub{color:var(--text-muted);font-size:0.9rem;font-weight:300;margin-bottom:1.5rem}
+.lobby-name{
+    font-family:var(--font-h);font-size:2.5rem;font-weight:800;
+    color:var(--q1);letter-spacing:0.04em;
+    text-shadow:0 0 30px rgba(0,212,255,0.4);
+}
+.lobby-players{margin-top:1.5rem;font-size:0.82rem;color:var(--text-muted)}
+.lobby-players span{color:var(--text)}
+
+/* ─────────────────── QUESTION ─────────────────── */
+#s-question{justify-content:flex-start}
+.q-body{flex:1;overflow-y:auto;padding:1rem 1rem 0}
+.q-timer-bar-wrap{height:4px;background:var(--bg-card-2);flex-shrink:0}
+.q-timer-bar{height:100%;background:var(--q1);transition:width 0.15s linear,background 0.4s}
+.eq-card{
+    background:var(--bg-card);border:1px solid rgba(0,212,255,0.12);border-radius:var(--r);
+    padding:1.25rem;margin-bottom:1rem;
+    font-family:'Courier New',monospace;font-size:clamp(1rem,5vw,1.4rem);
+    color:#fff;font-weight:700;text-align:center;letter-spacing:0.04em;
+    position:relative;overflow:hidden;
+}
+.eq-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--q1);opacity:0.5}
+.q-instruction{font-size:0.78rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);text-align:center;margin-bottom:1rem}
+.choices-player{
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:0.6rem;flex:1;
+    padding:0 1rem 1rem;
+}
+.choice-player-btn{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.3rem;
+    padding:0 0.5rem;
+    background:var(--bg-card);border:2px solid var(--cc);border-radius:var(--r);
+    color:var(--text);font-family:var(--font-b);font-size:0.88rem;font-weight:500;
+    cursor:pointer;-webkit-appearance:none;
+    transition:background 0.15s,transform 0.1s;
+    min-height:80px;
+    text-align:center;line-height:1.3;
+}
+.choice-player-btn:active:not(:disabled){transform:scale(0.95);background:color-mix(in srgb, var(--cc) 20%, transparent)}
+.choice-player-btn:disabled{cursor:default}
+.choice-player-lbl{font-family:var(--font-h);font-size:1.3rem;font-weight:800;color:var(--cc)}
+.choice-player-btn.chosen{
+    background:color-mix(in srgb, var(--cc) 25%, transparent);
+    transform:scale(0.97);
+}
+.choice-player-btn.revealed-correct{
+    background:rgba(74,222,128,0.15);border-color:var(--green);
+}
+.choice-player-btn.revealed-correct .choice-player-lbl,
+.choice-player-btn.revealed-correct{color:var(--green)}
+.choice-player-btn.revealed-wrong{opacity:0.3}
+.choice-player-btn.revealed-chosen-wrong{
+    background:rgba(248,113,113,0.15);border-color:var(--red);opacity:1;
+}
+
+/* ─────────────────── WAITING (after answer) ─────────────────── */
+#s-waiting{justify-content:center;align-items:center;padding:2rem;text-align:center}
+.wait-icon{font-size:3.5rem;margin-bottom:1rem}
+.wait-title{font-family:var(--font-h);font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:0.5rem}
+.wait-sub{color:var(--text-muted);font-weight:300}
+.wait-answer{
+    margin-top:1.5rem;
+    background:var(--bg-card);border:1px solid rgba(0,212,255,0.2);border-radius:var(--r);
+    padding:1rem 1.5rem;font-family:var(--font-h);font-size:1rem;font-weight:700;
+    color:var(--q1);letter-spacing:0.04em;
+}
+.wait-dots span{animation:blink 1.4s infinite both}
+.wait-dots span:nth-child(2){animation-delay:.2s}
+.wait-dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
+
+/* ─────────────────── REVEAL ─────────────────── */
+#s-reveal{justify-content:center;align-items:center;padding:1.5rem;text-align:center}
+.reveal-icon{font-size:5rem;line-height:1;margin-bottom:0.75rem;animation:popIn 0.4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
+.reveal-title{font-family:var(--font-h);font-size:2rem;font-weight:800;margin-bottom:0.5rem}
+.reveal-title.correct{color:var(--green)}
+.reveal-title.wrong{color:var(--red)}
+.reveal-answer-shown{
+    font-family:'Courier New',monospace;font-size:1rem;
+    background:var(--bg-card);border:1px solid rgba(0,212,255,0.15);border-radius:10px;
+    padding:0.75rem 1.25rem;margin:0.75rem 0;color:var(--text);letter-spacing:0.04em;
+}
+.reveal-correct-label{font-size:0.78rem;color:var(--q1);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.25rem}
+.reveal-correct-name{font-family:var(--font-h);font-size:1.3rem;font-weight:800;color:var(--green);margin-bottom:1rem}
+.reveal-hearts{font-size:1.5rem;letter-spacing:0.2em;margin-top:1rem}
+.reveal-score-change{font-family:var(--font-h);font-size:1rem;font-weight:700;margin-top:0.5rem}
+.reveal-score-change.gain{color:var(--green)}
+.reveal-score-change.loss{color:var(--red)}
+.reveal-total{color:var(--text-muted);font-size:0.85rem;margin-top:0.25rem}
+
+/* ─────────────────── ELIMINATED ─────────────────── */
+#s-eliminated{justify-content:center;align-items:center;padding:2rem;text-align:center}
+.elim-skull{font-size:5rem;line-height:1;margin-bottom:1rem}
+.elim-title{font-family:var(--font-h);font-size:2rem;font-weight:800;color:var(--red);margin-bottom:0.5rem}
+.elim-sub{color:var(--text-muted);font-weight:300;font-size:0.95rem}
+
+/* ─────────────────── ENDED ─────────────────── */
+#s-ended{justify-content:center;align-items:center;padding:1.5rem;text-align:center}
+.ended-eyebrow{font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--q1);margin-bottom:0.75rem}
+.ended-title{font-family:var(--font-h);font-size:2.5rem;font-weight:800;color:#fff;margin-bottom:0.25rem}
+.ended-score{font-family:var(--font-h);font-size:1.5rem;font-weight:700;color:var(--q1);margin-bottom:0.5rem}
+.ended-rank{font-size:0.95rem;color:var(--text-muted);margin-bottom:2rem}
+.ended-crown{font-size:2rem;margin-bottom:0.25rem}
+.ended-winner{font-family:var(--font-h);font-size:1.2rem;font-weight:800;color:var(--q2);margin-bottom:2rem}
+
+/* ─────────────────── LOADING OVERLAY ─────────────────── */
+#loading{
+    position:fixed;inset:0;z-index:99;
+    background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;
+}
+#loading.hidden{display:none}
+.spinner{width:40px;height:40px;border:3px solid rgba(0,212,255,0.15);border-top-color:var(--q1);border-radius:50%;animation:rot 0.8s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- Loading overlay while Firebase inits -->
+<div id="loading">
+    <div class="spinner"></div>
+    <p style="color:var(--text-muted);font-size:0.85rem">Connecting…</p>
+</div>
+
+<!-- ══════════════ JOIN ══════════════ -->
+<div id="s-join" class="screen" hidden>
+    <div class="join-card card">
+        <p class="eyebrow">Q1 · Reaction Rumble</p>
+        <h1 class="join-title">Join Game</h1>
+        <p class="join-subtitle">Enter the room code shown on your teacher's screen.</p>
+        <div class="field">
+            <label>Room Code</label>
+            <input type="text" id="input-code" maxlength="4" placeholder="XXXX" autocomplete="off" autocorrect="off" spellcheck="false"/>
+        </div>
+        <div class="field">
+            <label>Your Name</label>
+            <input type="text" id="input-name" maxlength="16" placeholder="Enter your name" class="name-input" autocomplete="off"/>
+        </div>
+        <p class="join-err" id="join-err"></p>
+        <button id="btn-join" class="btn-main">Join →</button>
+        <p class="join-note">No download needed. Works on any browser.</p>
+    </div>
+</div>
+
+<!-- ══════════════ LOBBY ══════════════ -->
+<div id="s-lobby" class="screen" hidden>
+    <div style="text-align:center;padding:2rem">
+        <div class="lobby-icon">⚗️</div>
+        <p class="eyebrow">Reaction Rumble</p>
+        <p class="lobby-title">You're in!</p>
+        <p class="lobby-sub">Waiting for the host to start the game…</p>
+        <div class="lobby-name" id="lobby-name">—</div>
+        <p class="lobby-players" id="lobby-players">— players joined</p>
+    </div>
+</div>
+
+<!-- ══════════════ QUESTION ══════════════ -->
+<div id="s-question" class="screen" hidden>
+    <div class="status-bar">
+        <span class="sb-name" id="sb-name">—</span>
+        <span class="sb-hearts" id="sb-hearts"></span>
+        <span class="sb-score" id="sb-score">0</span>
+    </div>
+    <div class="q-timer-bar-wrap">
+        <div class="q-timer-bar" id="q-timer-bar" style="width:100%"></div>
+    </div>
+    <div class="q-body">
+        <p class="q-instruction">What type of reaction is this?</p>
+        <div class="eq-card" id="eq-card">—</div>
+    </div>
+    <div class="choices-player" id="choices-player"></div>
+</div>
+
+<!-- ══════════════ WAITING ══════════════ -->
+<div id="s-waiting" class="screen" hidden>
+    <div class="status-bar">
+        <span class="sb-name" id="wt-name">—</span>
+        <span class="sb-hearts" id="wt-hearts"></span>
+        <span class="sb-score" id="wt-score">0</span>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center">
+        <div class="wait-icon">🔒</div>
+        <h2 class="wait-title">Locked In</h2>
+        <p class="wait-sub">Waiting for everyone else<span class="wait-dots"><span>.</span><span>.</span><span>.</span></span></p>
+        <div class="wait-answer" id="wait-answer-display">—</div>
+    </div>
+</div>
+
+<!-- ══════════════ REVEAL ══════════════ -->
+<div id="s-reveal" class="screen" hidden>
+    <div class="status-bar">
+        <span class="sb-name" id="rv-name">—</span>
+        <span class="sb-hearts" id="rv-hearts"></span>
+        <span class="sb-score" id="rv-score">0</span>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center">
+        <div class="reveal-icon" id="rv-icon">—</div>
+        <h2 class="reveal-title" id="rv-title">—</h2>
+        <div id="rv-wrong-show" hidden>
+            <p class="reveal-correct-label">Correct answer was</p>
+            <p class="reveal-correct-name" id="rv-correct-name">—</p>
+        </div>
+        <div class="reveal-hearts" id="rv-hearts-big"></div>
+        <div class="reveal-score-change" id="rv-score-change"></div>
+        <div class="reveal-total" id="rv-total"></div>
+    </div>
+</div>
+
+<!-- ══════════════ ELIMINATED ══════════════ -->
+<div id="s-eliminated" class="screen" hidden>
+    <div class="status-bar">
+        <span class="sb-name" id="el-name">—</span>
+        <span class="sb-hearts" style="color:var(--red)">☠</span>
+        <span class="sb-score" id="el-score">0</span>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center">
+        <div class="elim-skull">💀</div>
+        <h2 class="elim-title">Eliminated</h2>
+        <p class="elim-sub">You ran out of lives. Keep watching — the game's still going!</p>
+        <p style="margin-top:2rem;font-size:0.8rem;color:var(--text-muted)">Final score: <strong style="color:var(--q1)" id="el-final-score">0</strong></p>
+    </div>
+</div>
+
+<!-- ══════════════ ENDED ══════════════ -->
+<div id="s-ended" class="screen" hidden>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center">
+        <p class="ended-eyebrow">Game Over</p>
+        <p class="ended-title" id="en-name">—</p>
+        <p class="ended-score" id="en-score">0 pts</p>
+        <p class="ended-rank" id="en-rank">—</p>
+        <div id="en-winner-wrap" hidden>
+            <div class="ended-crown">👑</div>
+            <p class="ended-winner" id="en-winner">—</p>
+        </div>
+        <button class="btn-main" id="btn-play-again" style="max-width:280px">Play Again</button>
+    </div>
+</div>
+
+<script>
+'use strict';
+
+/* ══ FIREBASE CONFIG — same as the host screen ══ */
+const firebaseConfig = {
+    apiKey: "AIzaSyAsa4aXYagT0IQDh_Jg6yBdxsWM3XbupI8",
+    authDomain: "iclp-chem-78eae.firebaseapp.com",
+    databaseURL:       "https://iclp-chem-78eae-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "iclp-chem-78eae",
+    storageBucket: "iclp-chem-78eae.firebasestorage.app",
+    messagingSenderId: "845066709654",
+    appId: "1:845066709654:web:b80fe0623c549428a730b7"
+
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* ══ STATE ══ */
+let roomCode = null, roomRef = null, myRef = null;
+let myUID    = null, myName  = null;
+let myScore  = 0, myLives  = 3;
+let currentChoices  = [];
+let myAnswer = null;
+let timerInterval   = null;
+let roomListener    = null;
+let playerListener  = null;
+
+/* ══ UTILS ══ */
+const $  = id => document.getElementById(id);
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.hidden=true); $(id).hidden=false; }
+function hearts(lives){ return Array.from({length:3},(_,i)=>`<span class="${i<lives?'heart-alive':'heart-dead'}">♥</span>`).join(''); }
+function errMsg(msg){ $('join-err').textContent=msg; }
+
+const CHOICE_COLORS = ['var(--q1)','var(--q2)','var(--q3)','var(--q4)'];
+
+/* ══ INIT ══ */
+document.addEventListener('DOMContentLoaded',()=>{
+    $('loading').classList.add('hidden');
+    showScreen('s-join');
+    // Auto-focus room code
+    setTimeout(()=>$('input-code').focus(), 100);
+});
+
+$('input-code').addEventListener('input', e=>{
+    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+});
+$('input-code').addEventListener('keydown', e=>{ if(e.key==='Enter') $('input-name').focus(); });
+$('input-name').addEventListener('keydown', e=>{ if(e.key==='Enter') joinGame(); });
+$('btn-join').onclick = joinGame;
+
+/* ══════════════════════════════════════════════════════════
+                        J O I N
+   ══════════════════════════════════════════════════════════ */
+async function joinGame(){
+    const code = $('input-code').value.trim().toUpperCase();
+    const name = $('input-name').value.trim();
+
+    if(code.length !== 4){ errMsg('Room code must be 4 characters.'); return; }
+    if(!name){ errMsg('Please enter your name.'); return; }
+    if(name.length > 16){ errMsg('Name must be 16 characters or less.'); return; }
+
+    $('btn-join').disabled = true;
+    $('btn-join').textContent = 'Joining…';
+    errMsg('');
+
+    try {
+        const roomSnap = await db.ref(`rooms/${code}`).once('value');
+        if(!roomSnap.exists()){ errMsg('Room not found. Check the code and try again.'); resetJoinBtn(); return; }
+
+        const roomData = roomSnap.val();
+        if(roomData.state !== 'lobby'){ errMsg('That game has already started.'); resetJoinBtn(); return; }
+
+        // Generate UID
+        myUID   = 'p_' + Math.random().toString(36).substr(2,9);
+        myName  = name;
+        roomCode= code;
+        roomRef = db.ref(`rooms/${code}`);
+        myRef   = roomRef.child(`players/${myUID}`);
+
+        await myRef.set({ name, score:0, lives:3, answered:false, answer:null, answerTime:null });
+        myRef.onDisconnect().remove();
+
+        showScreen('s-lobby');
+        $('lobby-name').textContent = name;
+        listenToRoom();
+    } catch(e) {
+        errMsg('Connection error: ' + e.message);
+        resetJoinBtn();
+    }
+}
+
+function resetJoinBtn(){ $('btn-join').disabled=false; $('btn-join').textContent='Join →'; }
+
+/* ══════════════════════════════════════════════════════════
+                   ROOM STATE LISTENER
+   ══════════════════════════════════════════════════════════ */
+function listenToRoom(){
+    roomRef.on('value', snap=>{
+        if(!snap.exists()){ showScreen('s-join'); errMsg('Room closed by host.'); return; }
+        const room = snap.val();
+
+        // Update my local state from firebase
+        const me = room.players?.[myUID];
+        if(me){ myScore=me.score||0; myLives=me.lives??3; }
+
+        // Update player count in lobby
+        const count = Object.keys(room.players||{}).length;
+        $('lobby-players').innerHTML = `<span>${count}</span> player${count!==1?'s':''} joined`;
+
+        switch(room.state){
+            case 'lobby':      showScreen('s-lobby'); break;
+            case 'question':   handleQuestionState(room); break;
+            case 'reveal':     handleRevealState(room); break;
+            case 'leaderboard':handleLeaderboardState(room); break;
+            case 'ended':      handleEndedState(room); break;
+        }
+    });
+}
+
+/* ══════════════════════════════════════════════════════════
+                    Q U E S T I O N
+   ══════════════════════════════════════════════════════════ */
+function handleQuestionState(room){
+    const me = room.players?.[myUID];
+    if(!me) return;
+
+    // If already answered this round, stay on waiting screen
+    if(me.answered){
+        updateStatusBars(me);
+        return;
+    }
+
+    myAnswer = null;
+    currentChoices = room.question?.choices || [];
+
+    // If eliminated and this is a new question phase, show eliminated screen
+    if(me.lives <= 0){
+        $('el-name').textContent       = myName;
+        $('el-score').textContent      = myScore.toLocaleString();
+        $('el-final-score').textContent= myScore.toLocaleString();
+        showScreen('s-eliminated');
+        return;
+    }
+
+    showScreen('s-question');
+    updateStatusBars(me);
+    $('eq-card').textContent = room.question?.eq || '—';
+
+    const wrap = $('choices-player');
+    wrap.innerHTML = currentChoices.map((c,i)=>`
+        <button class="choice-player-btn" id="cpb-${i}"
+            style="--cc:${CHOICE_COLORS[i]}"
+            onclick="submitAnswer('${c}', ${i})">
+            <span class="choice-player-lbl">${'ABCD'[i]}</span>
+            ${c}
+        </button>`).join('');
+
+    startPlayerTimer(room.timerEnd);
+}
+
+function updateStatusBars(me){
+    const h = hearts(me.lives??3);
+    [$('sb-name'),$('wt-name'),$('rv-name')].forEach(el=>{ if(el) el.textContent=myName; });
+    [$('sb-hearts'),$('wt-hearts'),$('rv-hearts')].forEach(el=>{ if(el) el.innerHTML=h; });
+    [$('sb-score'),$('wt-score'),$('rv-score')].forEach(el=>{ if(el) el.textContent=(me.score||0).toLocaleString(); });
+}
+
+function startPlayerTimer(timerEnd){
+    clearInterval(timerInterval);
+    const bar = $('q-timer-bar');
+    timerInterval = setInterval(()=>{
+        const remaining = Math.max(0, timerEnd - Date.now());
+        const pct = (remaining / (20 * 1000)) * 100;
+        bar.style.width = pct + '%';
+        bar.style.background = pct < 25 ? 'var(--red)' : pct < 50 ? 'var(--q2)' : 'var(--q1)';
+        if(remaining <= 0) clearInterval(timerInterval);
+    }, 100);
+}
+
+async function submitAnswer(answer, idx){
+    if(myAnswer !== null) return; // already answered
+    myAnswer = answer;
+    clearInterval(timerInterval);
+
+    // Visually mark chosen button
+    document.querySelectorAll('.choice-player-btn').forEach(b=>b.disabled=true);
+    document.getElementById(`cpb-${idx}`)?.classList.add('chosen');
+
+    // Write to Firebase
+    await myRef.update({ answer, answered:true, answerTime: Date.now() });
+
+    // Show waiting screen
+    showScreen('s-waiting');
+    const me = { score:myScore, lives:myLives };
+    updateStatusBars(me);
+    $('wt-name').textContent = myName;
+    $('wait-answer-display').textContent = answer;
+}
+
+/* ══════════════════════════════════════════════════════════
+                      R E V E A L
+   ══════════════════════════════════════════════════════════ */
+function handleRevealState(room){
+    clearInterval(timerInterval);
+    const me = room.players?.[myUID];
+    if(!me) return;
+
+    const correct = me.answer === room.correctAnswer;
+    const wasAlive = me.lives > 0 || correct; // were they alive before this round's penalty?
+
+    showScreen('s-reveal');
+    updateStatusBars(me);
+
+    if(correct){
+        $('rv-icon').textContent  = '✅';
+        $('rv-title').textContent = 'Correct!';
+        $('rv-title').className   = 'reveal-title correct';
+        $('rv-wrong-show').hidden = true;
+        $('rv-score-change').textContent = '+1,000+';
+        $('rv-score-change').className   = 'reveal-score-change gain';
+    } else {
+        $('rv-icon').textContent = '❌';
+        $('rv-title').textContent = me.answer ? 'Wrong!' : 'Too Slow!';
+        $('rv-title').className  = 'reveal-title wrong';
+        $('rv-wrong-show').hidden = false;
+        $('rv-correct-name').textContent = room.correctAnswer || '—';
+        $('rv-score-change').textContent = '−1 ♥';
+        $('rv-score-change').className   = 'reveal-score-change loss';
+    }
+
+    $('rv-hearts-big').innerHTML = hearts(me.lives??3);
+    $('rv-total').textContent    = `Total: ${(me.score||0).toLocaleString()} pts`;
+}
+
+/* ══════════════════════════════════════════════════════════
+                   LEADERBOARD STATE
+   ══════════════════════════════════════════════════════════ */
+function handleLeaderboardState(room){
+    const me = room.players?.[myUID];
+    if(!me) return;
+
+    // If eliminated, stay on eliminated screen
+    if(me.lives <= 0 && !Object.values(room.players||{}).every(p=>p.lives<=0)){
+        showScreen('s-eliminated');
+        return;
+    }
+
+    // Otherwise stay on reveal screen until next question
+    // (host controls transition to question)
+}
+
+/* ══════════════════════════════════════════════════════════
+                     E N D E D
+   ══════════════════════════════════════════════════════════ */
+function handleEndedState(room){
+    clearInterval(timerInterval);
+    const me       = room.players?.[myUID];
+    const sorted   = Object.values(room.players||{}).sort((a,b)=>b.score-a.score);
+    const myRank   = sorted.findIndex(p=>p.name===myName) + 1;
+    const winner   = sorted[0];
+
+    showScreen('s-ended');
+    $('en-name').textContent  = myName;
+    $('en-score').textContent = `${(me?.score||0).toLocaleString()} pts`;
+    $('en-rank').textContent  = `You placed #${myRank} of ${sorted.length}`;
+
+    if(myRank === 1){
+        $('en-winner-wrap').hidden = false;
+        $('en-winner').textContent = '🏆 You won!';
+    } else {
+        $('en-winner-wrap').hidden = false;
+        $('en-winner').textContent = `Winner: ${winner?.name || '—'}`;
+    }
+}
+
+$('btn-play-again').onclick = ()=>{ location.reload(); };
+</script>
+</body>
+</html>

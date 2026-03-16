@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Q3 — Concentration Concepts · ICLP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="quarters.css"/>
+</head>
+<body data-q="3">
+
+<canvas id="bg-canvas"></canvas>
+
+<nav id="qnav">
+    <div class="qnav-inner">
+        <a href="interactivechemistrylearningplatformoriclpinshort.html" class="qnav-back">
+            <svg viewBox="0 0 16 16"><polyline points="10,3 5,8 10,13"/></svg>
+            ICLP
+        </a>
+        <span class="qnav-sep">/</span>
+        <span class="qnav-badge">Q3</span>
+        <span class="qnav-title">Concentration Concepts</span>
+    </div>
+</nav>
+
+<header class="q-hero">
+    <div class="q-hero-inner">
+        <p class="q-hero-label">Quarter 3 · Advanced Chemistry</p>
+        <h1 class="q-hero-title">Concentration<br/><span class="stroke">Concepts</span></h1>
+        <p class="q-hero-sub">
+            Understand how chemists quantify the amount of solute in a solution — from simple percentage composition to precise molar and molal concentrations.
+        </p>
+        <div class="q-hero-chips">
+            <span class="q-chip">% Composition</span>
+            <span class="q-chip">Molarity (M)</span>
+            <span class="q-chip">Molality (m)</span>
+            <span class="q-chip">ppm / ppb</span>
+        </div>
+    </div>
+    <div class="q-hero-line"></div>
+</header>
+
+<main>
+
+<section class="q-section">
+    <div class="q-section-inner">
+        <p class="q-section-label">Topic 1</p>
+        <h2 class="q-section-title">Percentage Composition</h2>
+        <p class="q-section-desc">The simplest way to express concentration — what fraction of the mixture is the solute, expressed as a percentage.</p>
+
+        <div class="topics-grid">
+
+            <div class="topic-card">
+                <p class="topic-num">01 / MASS PERCENT</p>
+                <h3 class="topic-title">Mass Percent (% m/m)</h3>
+                <p class="topic-body">
+                    The mass of the solute divided by the total mass of the solution, multiplied by 100.<br/><br/>
+                    <strong>% m/m = (mass of solute / mass of solution) × 100</strong><br/><br/>
+                    Example: 10 g NaCl dissolved in 90 g of water:<br/>
+                    <span class="mono">% = (10 / 100) × 100 = 10%</span>
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">02 / VOLUME PERCENT</p>
+                <h3 class="topic-title">Volume Percent (% v/v)</h3>
+                <p class="topic-body">
+                    Used when both solute and solvent are liquids. The volume of solute per total volume of solution.<br/><br/>
+                    <strong>% v/v = (volume of solute / volume of solution) × 100</strong><br/><br/>
+                    Example: 40 mL ethanol in 100 mL solution:<br/>
+                    <span class="mono">% = (40 / 100) × 100 = 40%</span>
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">03 / PERCENT IN COMPOUNDS</p>
+                <h3 class="topic-title">Percent Composition of a Compound</h3>
+                <p class="topic-body">
+                    The percentage of each element's mass in a pure compound. Used to verify molecular formulas.<br/><br/>
+                    <strong>% element = (molar mass of element in formula / molar mass of compound) × 100</strong><br/><br/>
+                    Example: % O in H₂O = (16.00 / 18.02) × 100 = <span class="mono">88.8%</span>
+                </p>
+            </div>
+
+        </div>
+
+        <div class="formula-strip">
+            <div class="formula-card">
+                <p class="formula-name">% Mass</p>
+                <p class="formula-expr">% = (mₛₒₗᵤₜₑ / mₛₒₗᵤₜᵢₒₙ) × 100</p>
+                <p class="formula-sub">Both measured in grams</p>
+            </div>
+            <div class="formula-card">
+                <p class="formula-name">% Volume</p>
+                <p class="formula-expr">% = (Vₛₒₗᵤₜₑ / Vₛₒₗᵤₜᵢₒₙ) × 100</p>
+                <p class="formula-sub">Both measured in mL or L</p>
+            </div>
+            <div class="formula-card">
+                <p class="formula-name">% Element in Compound</p>
+                <p class="formula-expr">% = (n × Mₑₗₑₘₑₙₜ / Mₘₒₗₑcᵤₗₑ) × 100</p>
+                <p class="formula-sub">n = number of atoms of element</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="q-section" style="padding-top:0">
+    <div class="q-section-inner">
+        <p class="q-section-label">Topic 2</p>
+        <h2 class="q-section-title">Molarity</h2>
+        <p class="q-section-desc">The most commonly used unit of concentration in chemistry — moles of solute per liter of solution.</p>
+
+        <div class="topics-grid">
+
+            <div class="topic-card">
+                <p class="topic-num">01 / DEFINITION</p>
+                <h3 class="topic-title">Molarity (M)</h3>
+                <p class="topic-body">
+                    Molarity expresses <strong>how many moles of solute are present per liter of solution</strong>. It is temperature-dependent because volume changes with temperature.<br/><br/>
+                    <strong>M = moles of solute / liters of solution</strong><br/><br/>
+                    A 1 M (1 molar) solution contains 1 mol of solute in every 1 L of solution.
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">02 / WORKED EXAMPLE</p>
+                <h3 class="topic-title">Solving for Molarity</h3>
+                <p class="topic-body">
+                    Problem: What is the molarity of a solution made by dissolving 58.5 g of NaCl (M = 58.5 g/mol) in 500 mL of water?<br/><br/>
+                    <strong>Step 1:</strong> moles NaCl = 58.5 g ÷ 58.5 g/mol = <span class="mono">1.00 mol</span><br/>
+                    <strong>Step 2:</strong> Convert 500 mL → <span class="mono">0.500 L</span><br/>
+                    <strong>Step 3:</strong> M = 1.00 mol / 0.500 L = <span class="mono">2.00 M</span>
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">03 / DILUTION</p>
+                <h3 class="topic-title">Dilution Formula</h3>
+                <p class="topic-body">
+                    When a concentrated solution is diluted, moles of solute remain constant. This gives the dilution equation:<br/><br/>
+                    <strong>M₁V₁ = M₂V₂</strong><br/><br/>
+                    Where M₁ and V₁ are the initial molarity and volume, and M₂ and V₂ are the final values after dilution.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="formula-strip">
+            <div class="formula-card">
+                <p class="formula-name">Molarity</p>
+                <p class="formula-expr">M = n / V</p>
+                <p class="formula-sub">n in mol, V in liters</p>
+            </div>
+            <div class="formula-card">
+                <p class="formula-name">Moles from grams</p>
+                <p class="formula-expr">n = mass (g) / molar mass (g/mol)</p>
+                <p class="formula-sub">Look up molar mass on periodic table</p>
+            </div>
+            <div class="formula-card">
+                <p class="formula-name">Dilution</p>
+                <p class="formula-expr">M₁V₁ = M₂V₂</p>
+                <p class="formula-sub">Moles of solute are conserved</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="q-section" style="padding-top:0">
+    <div class="q-section-inner">
+        <p class="q-section-label">Topic 3</p>
+        <h2 class="q-section-title">Molality &amp; Other Units</h2>
+        <p class="q-section-desc">Molality is concentration relative to the mass of solvent — useful for colligative properties because it is temperature-independent.</p>
+
+        <div class="topics-grid">
+
+            <div class="topic-card">
+                <p class="topic-num">01 / MOLALITY</p>
+                <h3 class="topic-title">Molality (m)</h3>
+                <p class="topic-body">
+                    Molality is the number of moles of solute per kilogram of <strong>solvent</strong> (not solution).<br/><br/>
+                    <strong>m = moles of solute / kg of solvent</strong><br/><br/>
+                    Example: 2 mol NaCl dissolved in 1 kg of water = <span class="mono">2 m</span> solution. Because it uses mass (not volume), molality does not change with temperature.
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">02 / M vs m</p>
+                <h3 class="topic-title">Molarity vs. Molality</h3>
+                <p class="topic-body">
+                    <strong>Molarity (M)</strong> — moles per liter of <em>solution</em>. More practical for lab use. Changes with temperature.<br/><br/>
+                    <strong>Molality (m)</strong> — moles per kg of <em>solvent</em>. Temperature-independent. Used for boiling point elevation and freezing point depression calculations.
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">03 / ppm & ppb</p>
+                <h3 class="topic-title">Parts per Million (ppm)</h3>
+                <p class="topic-body">
+                    Used for very dilute solutions (environmental, water quality). 1 ppm = 1 mg solute per 1 L of solution (approximately 1 mg/kg for water).<br/><br/>
+                    <strong>ppm = (mass of solute / mass of solution) × 10⁶</strong><br/><br/>
+                    ppb (parts per billion) = × 10⁹. Common in water quality testing and toxicology.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="formula-strip">
+            <div class="formula-card">
+                <p class="formula-name">Molality</p>
+                <p class="formula-expr">m = n / kg(solvent)</p>
+                <p class="formula-sub">Note: kg of solvent, not solution</p>
+            </div>
+            <div class="formula-card">
+                <p class="formula-name">ppm</p>
+                <p class="formula-expr">ppm = (mₛₒₗᵤₜₑ / mₛₒₗᵤₜᵢₒₙ) × 10⁶</p>
+                <p class="formula-sub">Mass in grams</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="cta-band">
+    <div class="cta-band-text">
+        <p class="cta-label">Interactive Activity</p>
+        <h3>Concentration Challenge</h3>
+        <p>Solve molarity, molality, and percentage composition problems in the Q3 calculator game. How many can you get right?</p>
+    </div>
+    <a href="q3g.html" class="btn-game">
+        <svg viewBox="0 0 16 16"><polygon points="5,3 13,8 5,13"/></svg>
+        Play Game
+    </a>
+</div>
+
+</main>
+
+<footer class="q-footer">
+    <div class="q-footer-inner">
+        <a href="interactivechemistrylearningplatformoriclpinshort.html" class="q-footer-logo">
+            <span>[</span>ICLP<span>]</span>
+        </a>
+        <span class="q-footer-copy">Interactive Chemistry Learning Platform · Advanced Chemistry · March 2026</span>
+    </div>
+</footer>
+
+<script src="quarters.js"></script>
+</body>
+</html>

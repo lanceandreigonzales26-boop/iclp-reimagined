@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Q4 Game — Redox Detective · ICLP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="games.css"/>
+    <style>
+        .oilrig{
+            display:inline-flex;gap:0.4rem;flex-wrap:wrap;
+            background:var(--bg-card-2);border:1px solid var(--border-accent);
+            border-radius:8px;padding:0.5rem 1rem;margin-bottom:1rem;
+            font-size:0.78rem;color:var(--text-muted);
+        }
+        .oilrig span{color:var(--accent);font-weight:700}
+        .subq-label{
+            font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;
+            color:var(--text-muted);margin-bottom:0.5rem;
+        }
+        .multi-part{display:flex;flex-direction:column;gap:1.25rem}
+        .part-block{background:var(--bg-card-2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem}
+        .part-block .subq-label{margin-bottom:0.5rem}
+        .part-choices{display:flex;flex-wrap:wrap;gap:0.5rem}
+        .part-choices .choice-btn{flex:1;min-width:120px;padding:0.65rem 0.75rem;font-size:0.82rem}
+        .os-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:0.65rem}
+        .os-btn{
+            background:var(--bg-card-2);border:1px solid var(--border);
+            border-radius:8px;padding:0.65rem 0.75rem;
+            color:var(--text);font-family:var(--font-body);font-size:0.85rem;
+            font-weight:500;cursor:pointer;text-align:center;
+            transition:border-color 0.18s,background 0.18s;
+        }
+        .os-btn:hover:not(:disabled){border-color:var(--border-accent);background:var(--accent-dim)}
+        .os-btn.correct{border-color:#4ade80;background:rgba(74,222,128,0.1);color:#4ade80}
+        .os-btn.wrong{border-color:#f87171;background:rgba(248,113,113,0.1);color:#f87171}
+    </style>
+</head>
+<body data-q="4">
+<canvas id="bg-canvas"></canvas>
+
+<nav id="gnav">
+    <div class="gnav-inner">
+        <a href="quarter4.html" class="gnav-back">
+            <svg viewBox="0 0 16 16"><polyline points="10,3 5,8 10,13"/></svg>
+            Q4 Notes
+        </a>
+        <span class="gnav-sep">/</span>
+        <span class="gnav-badge">Q4</span>
+        <span class="gnav-name">Redox Detective</span>
+    </div>
+</nav>
+
+<div id="game-root">
+<div class="game-wrap">
+
+    <div class="game-header">
+        <p class="eyebrow">Quarter 4 · Mini-Game</p>
+        <h1>Redox Detective</h1>
+        <p>Identify oxidation states, oxidizing/reducing agents, and what gets oxidized or reduced.</p>
+    </div>
+
+    <div class="hud">
+        <div class="hud-stat">
+            <span class="hud-val" id="score-val">0</span>
+            <span class="hud-label">Score</span>
+        </div>
+        <div class="progress-bar-wrap">
+            <div class="progress-bar-track">
+                <div class="progress-bar-fill" id="prog-bar" style="width:0%"></div>
+            </div>
+        </div>
+        <div class="hud-stat">
+            <span class="hud-val" id="q-count">1<span style="font-size:1rem;color:var(--text-muted)">/10</span></span>
+            <span class="hud-label">Question</span>
+        </div>
+    </div>
+
+    <div class="q-card-game" id="game-card">
+        <p class="qnum" id="qnum-label">Question 1 of 10</p>
+        <div class="oilrig">
+            <span>OIL</span>: Oxidation Is Loss &nbsp;|&nbsp; <span>RIG</span>: Reduction Is Gain
+        </div>
+        <div class="equation" id="eq-display"></div>
+        <p class="question-text" id="q-text"></p>
+        <div id="choices-area"></div>
+        <div class="feedback" id="feedback"></div>
+        <button class="btn-next" id="btn-next">Next →</button>
+    </div>
+
+    <div class="results" id="results">
+        <div class="results-score" id="final-score"></div>
+        <p class="results-label">out of 10 correct</p>
+        <p class="results-msg" id="results-msg"></p>
+        <div class="results-actions">
+            <button class="btn-restart" id="btn-restart">Play Again</button>
+            <a href="quarter4.html" class="btn-back-results">Back to Notes</a>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<script>
+(function(){
+    const c=document.getElementById('bg-canvas');if(!c)return;
+    const x=c.getContext('2d');let W,H,pts;
+    class P{constructor(){this.reset(true)}reset(i=false){this.x=Math.random()*W;this.y=i?Math.random()*H:H+10;this.r=Math.random()*1.2+.3;this.vx=(Math.random()-.5)*.25;this.vy=-(Math.random()*.3+.08);this.a=Math.random()*.45+.12;this.col=Math.random()>.5}
+    update(){this.x+=this.vx;this.y+=this.vy;if(this.y<-10)this.reset()}
+    draw(){x.beginPath();x.arc(this.x,this.y,this.r,0,Math.PI*2);x.fillStyle=this.col?'rgba(248,113,113,1)':'#fff';x.globalAlpha=this.a;x.fill();x.globalAlpha=1}}
+    function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}
+    function init(){resize();pts=Array.from({length:Math.floor(W*H/10000)},()=>new P())}
+    function loop(){x.clearRect(0,0,W,H);pts.forEach(p=>{p.update();p.draw()});requestAnimationFrame(loop)}
+    window.addEventListener('resize',init);init();loop();
+})();
+
+const QUESTIONS = [
+    {
+        eq:'Zn + CuSO₄ → ZnSO₄ + Cu',
+        text:'Which species is the <strong>reducing agent</strong>?',
+        answer:'Zn',
+        choices:['Zn','CuSO₄','ZnSO₄','Cu'],
+        hint:'Zn goes from 0 to +2 (oxidized → loses electrons). The species that is oxidized is the reducing agent.'
+    },
+    {
+        eq:'Zn + CuSO₄ → ZnSO₄ + Cu',
+        text:'Which species is the <strong>oxidizing agent</strong>?',
+        answer:'CuSO₄',
+        choices:['Zn','CuSO₄','ZnSO₄','Cu'],
+        hint:'Cu goes from +2 to 0 (reduced → gains electrons). The species that is reduced is the oxidizing agent.'
+    },
+    {
+        eq:'2Fe + 3Cl₂ → 2FeCl₃',
+        text:'What is the oxidation state of Fe in FeCl₃?',
+        answer:'+3',
+        choices:['+1','+2','+3','+6'],
+        hint:'Cl is always -1. Each Cl contributes -1. FeCl₃ has 3 Cl (-3 total). Fe must be +3 to balance to 0.'
+    },
+    {
+        eq:'2Mg + O₂ → 2MgO',
+        text:'Which element is <strong>oxidized</strong> in this reaction?',
+        answer:'Mg',
+        choices:['Mg','O₂','MgO','Neither'],
+        hint:'Mg goes from 0 to +2 (loses electrons, oxidation state increases). OIL — Oxidation Is Loss.'
+    },
+    {
+        eq:'2Mg + O₂ → 2MgO',
+        text:'Which element is <strong>reduced</strong> in this reaction?',
+        answer:'O',
+        choices:['Mg','O','MgO','Both'],
+        hint:'Oxygen goes from 0 (in O₂) to -2 (in MgO). Its oxidation state decreases — it gains electrons (RIG).'
+    },
+    {
+        eq:'Fe + 2HCl → FeCl₂ + H₂',
+        text:'What is the oxidation state of Fe in FeCl₂?',
+        answer:'+2',
+        choices:['-2','+1','+2','+3'],
+        hint:'Cl is -1, two Cl atoms = -2. For FeCl₂ to be neutral, Fe = +2.'
+    },
+    {
+        eq:'2H₂O₂ → 2H₂O + O₂',
+        text:'In H₂O₂, what is the oxidation state of oxygen?',
+        answer:'-1',
+        choices:['-2','-1','0','+2'],
+        hint:'H is +1 (×2 = +2). For H₂O₂ to be neutral: 2 + 2(O) = 0, so O = -1. Peroxides are the exception to the "oxygen = -2" rule.'
+    },
+    {
+        eq:'Cl₂ + 2KBr → 2KCl + Br₂',
+        text:'Which species is <strong>oxidized</strong>?',
+        answer:'Br⁻ (in KBr)',
+        choices:['Cl₂','Br⁻ (in KBr)','KCl','K⁺'],
+        hint:'Br goes from -1 (in KBr) to 0 (in Br₂) — loses electrons → oxidized. Cl₂ goes from 0 to -1 — gains electrons → reduced.'
+    },
+    {
+        eq:'MnO₄⁻ + 5Fe²⁺ + 8H⁺ → Mn²⁺ + 5Fe³⁺ + 4H₂O',
+        text:'What happens to Mn in this reaction?',
+        answer:'It is reduced (+7 → +2)',
+        choices:['It is oxidized (+2 → +7)','It is reduced (+7 → +2)','It does not change','It is both oxidized and reduced'],
+        hint:'MnO₄⁻: Mn is +7 (O is -2 × 4 = -8; total charge -1; so Mn = +7). In Mn²⁺, Mn = +2. Decrease in oxidation state = reduction.'
+    },
+    {
+        eq:'S + O₂ → SO₂',
+        text:'What is the oxidation state of S in SO₂?',
+        answer:'+4',
+        choices:['-4','+2','+4','+6'],
+        hint:'O is -2 × 2 = -4. For SO₂ to be neutral: S + (-4) = 0, so S = +4.'
+    },
+];
+
+let qs, qi, score;
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+
+function startGame(){
+    qs=shuffle(QUESTIONS);qi=0;score=0;
+    document.getElementById('results').classList.remove('show');
+    document.getElementById('game-card').style.display='';
+    renderQ();
+}
+
+function renderQ(){
+    const q=qs[qi];
+    document.getElementById('qnum-label').textContent=`Question ${qi+1} of 10`;
+    document.getElementById('q-count').innerHTML=`${qi+1}<span style="font-size:1rem;color:var(--text-muted)">/10</span>`;
+    document.getElementById('score-val').textContent=score;
+    document.getElementById('prog-bar').style.width=`${(qi/10)*100}%`;
+    document.getElementById('eq-display').textContent=q.eq;
+    document.getElementById('q-text').innerHTML=q.text;
+
+    const fb=document.getElementById('feedback');
+    fb.className='feedback';fb.textContent='';
+
+    const btn=document.getElementById('btn-next');
+    btn.className='btn-next';
+
+    const area=document.getElementById('choices-area');
+    area.innerHTML='';
+
+    const wrap=document.createElement('div');
+    wrap.className='choices';
+    shuffle(q.choices).forEach(opt=>{
+        const b=document.createElement('button');
+        b.className='choice-btn';b.textContent=opt;
+        b.onclick=()=>handleChoice(b,opt,q);
+        wrap.appendChild(b);
+    });
+    area.appendChild(wrap);
+}
+
+function handleChoice(btn,chosen,q){
+    document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
+    const correct=chosen===q.answer;
+    const fb=document.getElementById('feedback');
+    if(correct){
+        btn.classList.add('correct');score++;
+        fb.className='feedback correct show';
+        fb.innerHTML=`<strong>Correct!</strong> ${q.hint}`;
+    } else {
+        btn.classList.add('wrong');
+        fb.className='feedback wrong show';
+        fb.innerHTML=`<strong>Not quite.</strong> The answer is <strong>${q.answer}</strong>. ${q.hint}`;
+        document.querySelectorAll('.choice-btn').forEach(b=>{if(b.textContent===q.answer)b.classList.add('correct');});
+    }
+    const next=document.getElementById('btn-next');
+    next.className='btn-next show';
+    next.textContent=qi<9?'Next Question →':'See Results';
+}
+
+document.getElementById('btn-next').onclick=()=>{qi++;if(qi>=10){showResults();return}renderQ()};
+document.getElementById('btn-restart').onclick=startGame;
+
+function showResults(){
+    document.getElementById('game-card').style.display='none';
+    document.getElementById('results').classList.add('show');
+    document.getElementById('final-score').textContent=score;
+    document.getElementById('prog-bar').style.width='100%';
+    document.getElementById('score-val').textContent=score;
+    const msgs=[[0,3,'Review OIL RIG and oxidation state rules — it gets easier with practice!'],[4,6,'Good start! A few more rounds and you\'ll nail redox.'],[7,9,'Impressive! You have solid redox instincts.'],[10,10,'Perfect! You are a true Redox Detective.']];
+    const m=msgs.find(([lo,hi])=>score>=lo&&score<=hi);
+    document.getElementById('results-msg').textContent=m?m[2]:'';
+}
+
+startGame();
+</script>
+</body>
+</html>

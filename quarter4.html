@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Q4 — Redox Reactions · ICLP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="quarters.css"/>
+</head>
+<body data-q="4">
+
+<canvas id="bg-canvas"></canvas>
+
+<nav id="qnav">
+    <div class="qnav-inner">
+        <a href="interactivechemistrylearningplatformoriclpinshort.html" class="qnav-back">
+            <svg viewBox="0 0 16 16"><polyline points="10,3 5,8 10,13"/></svg>
+            ICLP
+        </a>
+        <span class="qnav-sep">/</span>
+        <span class="qnav-badge">Q4</span>
+        <span class="qnav-title">Oxidation-Reduction Reactions</span>
+    </div>
+</nav>
+
+<header class="q-hero">
+    <div class="q-hero-inner">
+        <p class="q-hero-label">Quarter 4 · Advanced Chemistry</p>
+        <h1 class="q-hero-title">Oxidation-Reduction<br/><span class="stroke">Redox Reactions</span></h1>
+        <p class="q-hero-sub">
+            Learn to assign oxidation states, identify which species are oxidized or reduced, and balance complex redox equations using the half-reaction method.
+        </p>
+        <div class="q-hero-chips">
+            <span class="q-chip">Oxidation States</span>
+            <span class="q-chip">OIL RIG</span>
+            <span class="q-chip">Half-Reactions</span>
+            <span class="q-chip">Oxidizing &amp; Reducing Agents</span>
+        </div>
+    </div>
+    <div class="q-hero-line"></div>
+</header>
+
+<main>
+
+<section class="q-section">
+    <div class="q-section-inner">
+        <p class="q-section-label">Topic 1</p>
+        <h2 class="q-section-title">Oxidation States</h2>
+        <p class="q-section-desc">Oxidation states (or oxidation numbers) are assigned charges that track electron transfer in a reaction.</p>
+
+        <div class="topics-grid">
+
+            <div class="topic-card">
+                <p class="topic-num">01 / RULES</p>
+                <h3 class="topic-title">Oxidation State Rules</h3>
+                <p class="topic-body">
+                    <strong>1.</strong> Pure element = 0 (e.g., O₂, Fe, Na)<br/>
+                    <strong>2.</strong> Monatomic ion = its charge (Na⁺ = +1, Cl⁻ = −1)<br/>
+                    <strong>3.</strong> Oxygen = −2 (except in peroxides: −1, and OF₂: +2)<br/>
+                    <strong>4.</strong> Hydrogen = +1 (−1 in metal hydrides)<br/>
+                    <strong>5.</strong> Sum of oxidation states in a neutral compound = 0<br/>
+                    <strong>6.</strong> Sum of oxidation states in a polyatomic ion = ion charge
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">02 / WORKED EXAMPLE</p>
+                <h3 class="topic-title">Finding Oxidation States</h3>
+                <p class="topic-body">
+                    Find the oxidation state of S in H₂SO₄:<br/><br/>
+                    H is +1, O is −2. Let S = x.<br/>
+                    <span class="mono">2(+1) + x + 4(−2) = 0</span><br/>
+                    <span class="mono">2 + x − 8 = 0</span><br/>
+                    <span class="mono">x = +6</span><br/><br/>
+                    So sulfur has an oxidation state of <strong>+6</strong> in sulfuric acid.
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">03 / COMMON VALUES</p>
+                <h3 class="topic-title">Common Oxidation States</h3>
+                <p class="topic-body">
+                    <strong>Fluorine:</strong> always −1<br/>
+                    <strong>Oxygen:</strong> usually −2<br/>
+                    <strong>Hydrogen:</strong> usually +1<br/>
+                    <strong>Group 1 metals:</strong> always +1<br/>
+                    <strong>Group 2 metals:</strong> always +2<br/>
+                    <strong>Transition metals:</strong> variable (e.g., Fe can be +2 or +3; Cr can be +2, +3, or +6)
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section class="q-section" style="padding-top:0">
+    <div class="q-section-inner">
+        <p class="q-section-label">Topic 2</p>
+        <h2 class="q-section-title">Identifying Redox Reactions</h2>
+        <p class="q-section-desc">A reaction is a redox reaction if and only if oxidation states change between reactants and products.</p>
+
+        <div class="topics-grid">
+
+            <div class="topic-card">
+                <p class="topic-num">01 / OIL RIG</p>
+                <h3 class="topic-title">OIL RIG Mnemonic</h3>
+                <p class="topic-body">
+                    <strong>O</strong>xidation <strong>I</strong>s <strong>L</strong>oss (of electrons)<br/>
+                    <strong>R</strong>eduction <strong>I</strong>s <strong>G</strong>ain (of electrons)<br/><br/>
+                    When an atom loses electrons, its oxidation state <strong>increases</strong> (it is oxidized).<br/>
+                    When an atom gains electrons, its oxidation state <strong>decreases</strong> (it is reduced).<br/><br/>
+                    Oxidation and reduction always occur together — you cannot have one without the other.
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">02 / AGENTS</p>
+                <h3 class="topic-title">Oxidizing &amp; Reducing Agents</h3>
+                <p class="topic-body">
+                    <strong>Oxidizing agent:</strong> Causes another species to be oxidized. It itself is <em>reduced</em> (gains electrons). It is the electron acceptor.<br/><br/>
+                    <strong>Reducing agent:</strong> Causes another species to be reduced. It itself is <em>oxidized</em> (loses electrons). It is the electron donor.<br/><br/>
+                    Memory trick: The oxidizing agent gets reduced; the reducing agent gets oxidized.
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">03 / EXAMPLE</p>
+                <h3 class="topic-title">Identifying in a Reaction</h3>
+                <p class="topic-body">
+                    <span class="mono">Zn + CuSO₄ → ZnSO₄ + Cu</span><br/><br/>
+                    Zn: 0 → +2 (oxidation state increases) → <strong>oxidized</strong>, acts as <strong>reducing agent</strong><br/><br/>
+                    Cu: +2 → 0 (oxidation state decreases) → <strong>reduced</strong>, CuSO₄ acts as <strong>oxidizing agent</strong><br/><br/>
+                    Electrons transferred from Zn to Cu²⁺.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section class="q-section" style="padding-top:0">
+    <div class="q-section-inner">
+        <p class="q-section-label">Topic 3</p>
+        <h2 class="q-section-title">Half-Reaction Method</h2>
+        <p class="q-section-desc">A systematic approach to balancing redox equations by separating oxidation and reduction into two independent half-reactions.</p>
+
+        <div class="topics-grid">
+
+            <div class="topic-card">
+                <p class="topic-num">01 / STEPS</p>
+                <h3 class="topic-title">Steps for Half-Reaction Balancing</h3>
+                <p class="topic-body">
+                    <strong>1.</strong> Assign oxidation states to identify what's oxidized and reduced.<br/>
+                    <strong>2.</strong> Write two half-reactions (oxidation and reduction).<br/>
+                    <strong>3.</strong> Balance atoms other than O and H first.<br/>
+                    <strong>4.</strong> Balance O by adding H₂O; balance H by adding H⁺.<br/>
+                    <strong>5.</strong> Balance charge by adding electrons (e⁻).<br/>
+                    <strong>6.</strong> Multiply half-reactions so electrons cancel.<br/>
+                    <strong>7.</strong> Add half-reactions and simplify.
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">02 / EXAMPLE</p>
+                <h3 class="topic-title">Worked Half-Reaction Example</h3>
+                <p class="topic-body">
+                    Balance: <span class="mono">MnO₄⁻ + Fe²⁺ → Mn²⁺ + Fe³⁺</span> (acidic)<br/><br/>
+                    <strong>Reduction:</strong> <span class="mono">MnO₄⁻ + 8H⁺ + 5e⁻ → Mn²⁺ + 4H₂O</span><br/>
+                    <strong>Oxidation:</strong> <span class="mono">Fe²⁺ → Fe³⁺ + e⁻</span><br/><br/>
+                    Multiply oxidation by 5: <span class="mono">5Fe²⁺ → 5Fe³⁺ + 5e⁻</span><br/><br/>
+                    <strong>Final:</strong> <span class="mono">MnO₄⁻ + 5Fe²⁺ + 8H⁺ → Mn²⁺ + 5Fe³⁺ + 4H₂O</span>
+                </p>
+            </div>
+
+        </div>
+
+        <div class="rxn-table-wrap">
+            <table class="rxn-table">
+                <thead>
+                    <tr>
+                        <th>Term</th>
+                        <th>Definition</th>
+                        <th>Oxidation State Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Oxidation</td>
+                        <td>Loss of electrons</td>
+                        <td>Increases (more positive)</td>
+                    </tr>
+                    <tr>
+                        <td>Reduction</td>
+                        <td>Gain of electrons</td>
+                        <td>Decreases (more negative)</td>
+                    </tr>
+                    <tr>
+                        <td>Oxidizing Agent</td>
+                        <td>Accepts electrons; causes oxidation of another</td>
+                        <td>Its own state decreases (it is reduced)</td>
+                    </tr>
+                    <tr>
+                        <td>Reducing Agent</td>
+                        <td>Donates electrons; causes reduction of another</td>
+                        <td>Its own state increases (it is oxidized)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<div class="cta-band">
+    <div class="cta-band-text">
+        <p class="cta-label">Interactive Activity</p>
+        <h3>Redox Detective</h3>
+        <p>Can you identify what's oxidized, what's reduced, and who the agents are? Take the Q4 redox quiz and find out.</p>
+    </div>
+    <a href="q4g.html" class="btn-game">
+        <svg viewBox="0 0 16 16"><polygon points="5,3 13,8 5,13"/></svg>
+        Play Game
+    </a>
+</div>
+
+</main>
+
+<footer class="q-footer">
+    <div class="q-footer-inner">
+        <a href="interactivechemistrylearningplatformoriclpinshort.html" class="q-footer-logo">
+            <span>[</span>ICLP<span>]</span>
+        </a>
+        <span class="q-footer-copy">Interactive Chemistry Learning Platform · Advanced Chemistry · March 2026</span>
+    </div>
+</footer>
+
+<script src="quarters.js"></script>
+</body>
+</html>

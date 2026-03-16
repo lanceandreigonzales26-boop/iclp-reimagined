@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Q1 — Chemical Reactions &amp; Elements · ICLP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="quarters.css"/>
+</head>
+<body data-q="1">
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav id="qnav">
+    <div class="qnav-inner">
+        <a href="interactivechemistrylearningplatformoriclpinshort.html" class="qnav-back">
+            <svg viewBox="0 0 16 16"><polyline points="10,3 5,8 10,13"/></svg>
+            ICLP
+        </a>
+        <span class="qnav-sep">/</span>
+        <span class="qnav-badge">Q1</span>
+        <span class="qnav-title">Chemical Reactions &amp; Elements</span>
+    </div>
+</nav>
+
+<!-- HERO -->
+<header class="q-hero">
+    <div class="q-hero-inner">
+        <p class="q-hero-label">Quarter 1 · Advanced Chemistry</p>
+        <h1 class="q-hero-title">Chemical Reactions<br/>&amp; <span class="stroke">Elements</span></h1>
+        <p class="q-hero-sub">
+            Explore the five types of chemical reactions, understand how elements are classified on the periodic table, and learn to identify reaction patterns from equations alone.
+        </p>
+        <div class="q-hero-chips">
+            <span class="q-chip">Types of Reactions</span>
+            <span class="q-chip">Periodic Table</span>
+            <span class="q-chip">Element Properties</span>
+            <span class="q-chip">Reaction Classification</span>
+        </div>
+    </div>
+    <div class="q-hero-line"></div>
+</header>
+
+<main>
+
+<!-- TOPIC 1: Types of Chemical Reactions -->
+<section class="q-section">
+    <div class="q-section-inner">
+        <p class="q-section-label">Topic 1</p>
+        <h2 class="q-section-title">Types of Chemical Reactions</h2>
+        <p class="q-section-desc">Chemical reactions are classified into five fundamental types based on how reactants rearrange to form products.</p>
+
+        <div class="topics-grid">
+
+            <div class="topic-card">
+                <p class="topic-num">01 / SYNTHESIS</p>
+                <h3 class="topic-title">Synthesis Reaction</h3>
+                <p class="topic-body">
+                    Two or more substances combine to form a <strong>single, more complex product</strong>.<br/><br/>
+                    General form: <span class="mono">A + B → AB</span><br/><br/>
+                    Example: <span class="mono">2H₂ + O₂ → 2H₂O</span><br/>
+                    Hydrogen and oxygen gases combine to form water.
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">02 / DECOMPOSITION</p>
+                <h3 class="topic-title">Decomposition Reaction</h3>
+                <p class="topic-body">
+                    A single compound <strong>breaks down into two or more simpler substances</strong>. The reverse of synthesis.<br/><br/>
+                    General form: <span class="mono">AB → A + B</span><br/><br/>
+                    Example: <span class="mono">2H₂O → 2H₂ + O₂</span><br/>
+                    Electrolysis of water splits it into hydrogen and oxygen.
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">03 / SINGLE REPLACEMENT</p>
+                <h3 class="topic-title">Single Replacement</h3>
+                <p class="topic-body">
+                    One element <strong>displaces another element</strong> from a compound. Requires the displacing element to be more reactive.<br/><br/>
+                    General form: <span class="mono">A + BC → AC + B</span><br/><br/>
+                    Example: <span class="mono">Zn + 2HCl → ZnCl₂ + H₂</span><br/>
+                    Zinc displaces hydrogen from hydrochloric acid.
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">04 / DOUBLE REPLACEMENT</p>
+                <h3 class="topic-title">Double Replacement</h3>
+                <p class="topic-body">
+                    The positive and negative ions of two ionic compounds <strong>exchange partners</strong>, forming two new compounds.<br/><br/>
+                    General form: <span class="mono">AB + CD → AD + CB</span><br/><br/>
+                    Example: <span class="mono">AgNO₃ + NaCl → AgCl↓ + NaNO₃</span><br/>
+                    Silver nitrate and sodium chloride swap ions; AgCl precipitates.
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">05 / COMBUSTION</p>
+                <h3 class="topic-title">Combustion Reaction</h3>
+                <p class="topic-body">
+                    A substance reacts rapidly with <strong>oxygen, releasing energy as heat and light</strong>. Complete combustion of hydrocarbons always produces CO₂ and H₂O.<br/><br/>
+                    General form: <span class="mono">CₓHᵧ + O₂ → CO₂ + H₂O</span><br/><br/>
+                    Example: <span class="mono">CH₄ + 2O₂ → CO₂ + 2H₂O</span><br/>
+                    Methane burning in oxygen produces carbon dioxide and water.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Reaction Type Summary Table -->
+        <div class="rxn-table-wrap">
+            <table class="rxn-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Pattern</th>
+                        <th>Key Identifier</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Synthesis</td>
+                        <td><span class="mono">A + B → AB</span></td>
+                        <td>Multiple reactants, one product</td>
+                        <td><span class="mono">2Mg + O₂ → 2MgO</span></td>
+                    </tr>
+                    <tr>
+                        <td>Decomposition</td>
+                        <td><span class="mono">AB → A + B</span></td>
+                        <td>One reactant, multiple products</td>
+                        <td><span class="mono">CaCO₃ → CaO + CO₂</span></td>
+                    </tr>
+                    <tr>
+                        <td>Single Replacement</td>
+                        <td><span class="mono">A + BC → AC + B</span></td>
+                        <td>Element replaces element in compound</td>
+                        <td><span class="mono">Fe + CuSO₄ → FeSO₄ + Cu</span></td>
+                    </tr>
+                    <tr>
+                        <td>Double Replacement</td>
+                        <td><span class="mono">AB + CD → AD + CB</span></td>
+                        <td>Two compounds exchange ions</td>
+                        <td><span class="mono">BaCl₂ + Na₂SO₄ → BaSO₄ + 2NaCl</span></td>
+                    </tr>
+                    <tr>
+                        <td>Combustion</td>
+                        <td><span class="mono">Fuel + O₂ → CO₂ + H₂O</span></td>
+                        <td>O₂ as reactant, heat produced</td>
+                        <td><span class="mono">C₃H₈ + 5O₂ → 3CO₂ + 4H₂O</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- TOPIC 2: Elements & Periodic Table -->
+<section class="q-section" style="padding-top:0">
+    <div class="q-section-inner">
+        <p class="q-section-label">Topic 2</p>
+        <h2 class="q-section-title">Elements — Properties &amp; Classification</h2>
+        <p class="q-section-desc">The periodic table organizes all known elements by atomic number, revealing patterns in their physical and chemical properties.</p>
+
+        <div class="topics-grid">
+
+            <div class="topic-card">
+                <p class="topic-num">01 / METALS</p>
+                <h3 class="topic-title">Metals</h3>
+                <p class="topic-body">
+                    Metals occupy the left and center of the periodic table. Key properties include: <strong>lustrous (shiny)</strong>, good conductors of heat and electricity, malleable and ductile, high melting points, and the tendency to <strong>lose electrons</strong> to form positive ions (cations).<br/><br/>
+                    Examples: Iron (Fe), Copper (Cu), Gold (Au), Sodium (Na), Calcium (Ca)
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">02 / NONMETALS</p>
+                <h3 class="topic-title">Nonmetals</h3>
+                <p class="topic-body">
+                    Found on the upper-right side of the table (except hydrogen). They are generally <strong>poor conductors</strong>, brittle in solid form, and tend to <strong>gain electrons</strong> to form negative ions (anions).<br/><br/>
+                    Examples: Carbon (C), Nitrogen (N), Oxygen (O), Sulfur (S), Chlorine (Cl)
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">03 / METALLOIDS</p>
+                <h3 class="topic-title">Metalloids (Semimetals)</h3>
+                <p class="topic-body">
+                    Positioned along the staircase line between metals and nonmetals. Exhibit <strong>properties of both</strong> — semiconductors in electronics, variable conductivity depending on conditions.<br/><br/>
+                    Examples: Silicon (Si), Germanium (Ge), Arsenic (As), Boron (B)
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">04 / PERIODIC TRENDS</p>
+                <h3 class="topic-title">Key Periodic Trends</h3>
+                <p class="topic-body">
+                    <strong>Atomic Radius:</strong> Increases down a group; decreases across a period (left to right).<br/><br/>
+                    <strong>Electronegativity:</strong> Increases across a period; decreases down a group. Fluorine (F) has the highest electronegativity.<br/><br/>
+                    <strong>Ionization Energy:</strong> Energy required to remove an electron. Increases across a period; decreases down a group.
+                </p>
+            </div>
+
+            <div class="topic-card">
+                <p class="topic-num">05 / GROUPS & PERIODS</p>
+                <h3 class="topic-title">Groups &amp; Periods</h3>
+                <p class="topic-body">
+                    <strong>Groups (columns):</strong> Elements share similar chemical properties and valence electron count. Group 1 = Alkali Metals, Group 17 = Halogens, Group 18 = Noble Gases.<br/><br/>
+                    <strong>Periods (rows):</strong> Each period represents a new electron shell. Period 1 has 2 elements; Period 2 has 8.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- GAME CTA -->
+<div class="cta-band">
+    <div class="cta-band-text">
+        <p class="cta-label">Interactive Activity</p>
+        <h3>Test Your Knowledge</h3>
+        <p>Can you identify the type of each chemical reaction? Play the Q1 classification game and find out.</p>
+    </div>
+    <a href="q1g.html" class="btn-game">
+        <svg viewBox="0 0 16 16"><polygon points="5,3 13,8 5,13"/></svg>
+        Play Game
+    </a>
+</div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="q-footer">
+    <div class="q-footer-inner">
+        <a href="interactivechemistrylearningplatformoriclpinshort.html" class="q-footer-logo">
+            <span>[</span>ICLP<span>]</span>
+        </a>
+        <span class="q-footer-copy">Interactive Chemistry Learning Platform · Advanced Chemistry · March 2026</span>
+    </div>
+</footer>
+
+<script src="quarters.js"></script>
+</body>
+</html>
